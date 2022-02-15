@@ -72,7 +72,7 @@ final class CalculatorService {
     
     // Error check computed variables
     var expressionIsCorrect: Bool {
-        return elements.last != "+" && elements.last != "-"
+        return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/"
     }
     
     var expressionHaveEnoughElement: Bool {
@@ -80,11 +80,11 @@ final class CalculatorService {
     }
     
     var canAddOperator: Bool {
-        return elements.last != "+" && elements.last != "-"
+        return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/" && elements.first != nil
     }
     
     var canAddDecimalPoint: Bool {
-        elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))!
+        elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
     }
     
     var expressionHaveResult: Bool {
@@ -92,14 +92,22 @@ final class CalculatorService {
     }
     
     var conditionForZeroBeforeDecimalPoint: Bool {
-        return elements.last!.isEmpty || elements.last == "+" || elements.last == "-" || elements.last == "*" || elements.last == "/"
+        return elements.isEmpty || elements.last == "+" || elements.last == "-" || elements.last == "*" || elements.last == "/"
     }
-
+    
     func add(digit: Int) {
+        guard !expressionHaveResult else {
+            resetOperation()
+            operation.append(digit.description)
+            return
+        }
         operation.append(digit.description)
     }
     
     func add(mathOperator: MathOperator) throws {
+        guard !expressionHaveResult else {
+            return
+        }
         guard canAddOperator else {
             throw CalculatorServiceError.failedToAddMathOperator
         }
@@ -111,12 +119,65 @@ final class CalculatorService {
         guard canAddDecimalPoint else {
             throw CalculatorServiceError.failedToAddPoint
         }
+        
+        guard !expressionHaveResult else {
+            resetOperation()
+            if conditionForZeroBeforeDecimalPoint {
+                operation.append("0.")
+            } else {
+                operation.append(".")
+            }
+            return
+        }
+        
         if conditionForZeroBeforeDecimalPoint {
             operation.append("0.")
         } else {
             operation.append(".")
         }
         
+    }
+    
+    func solveOperation() -> (isOperationSolved: Bool, message: String) {
+        guard expressionIsCorrect else {
+            return (false, "Veuillez entrer une expression correcte.")
+        }
+        
+        guard expressionHaveEnoughElement else {
+            return (false, "Veuillez démarrer un nouveau calcul.")
+        }
+        
+        guard !expressionHaveResult else {
+            return (false, "")
+        }
+        
+        // Create local copy of operations
+        var operationsToReduce = elements
+        
+        // Iterate over operations while an operand still here
+        while operationsToReduce.count > 1 {
+            let left = Int(operationsToReduce[0])!
+            let operand = operationsToReduce[1]
+            let right = Int(operationsToReduce[2])!
+            
+            let result: Int
+            switch operand {
+            case "+": result = left + right
+            case "-": result = left - right
+            case "*": result = left * right
+            case "/": result = left / right
+            default: fatalError("Unknown operator !")
+            }
+            
+            operationsToReduce = Array(operationsToReduce.dropFirst(3))
+            operationsToReduce.insert("\(result)", at: 0)
+        }
+        
+        if let operationsToReduceFirst = operationsToReduce.first {
+            operation.append(" = \(operationsToReduceFirst)")
+        }
+        
+        return (true, "")
     }
     
     func resetOperation() {

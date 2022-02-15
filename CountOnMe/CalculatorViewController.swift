@@ -24,13 +24,13 @@ final class CalculatorViewController: UIViewController {
         calculatorService.delegate = self
         // Do any additional setup after loading the view.
     }
-
     
     
     // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         calculatorService.add(digit: sender.tag)
     }
+    
     
     @IBAction func didTapPointButton(_ sender: UIButton) {
         do {
@@ -39,6 +39,7 @@ final class CalculatorViewController: UIViewController {
             presentAlert(message: "Un point est déja mis !")
         }
     }
+    
     
     @IBAction func didTapMathOperatorButton(_ sender: UIButton) {
         guard let mathOperatorButtonTitleCharacter = sender.title(for: .normal)?.first,
@@ -52,55 +53,30 @@ final class CalculatorViewController: UIViewController {
         do {
             try calculatorService.add(mathOperator: mathOperator)
         } catch {
-            presentAlert(message: "Un operateur est déja mis !")
+            presentAlert(message: "Impossible d'ajouter un opérateur.")
         }
     }
     
-   
+    
+
+    @IBAction func tappedEqualButton(_ sender: UIButton) {
+        let resultStatus = calculatorService.solveOperation()
+        
+        guard resultStatus.isOperationSolved else {
+            return presentAlert(message: resultStatus.message)
+        }
+    }
+    
+    
     @IBAction func didTapResetButton() {
         calculatorService.resetOperation()
     }
     
+    
     private func presentAlert(message: String) {
-        let alertVC = UIAlertController(title: "Zéro!", message: message, preferredStyle: .alert)
+        let alertVC = UIAlertController(title: "Message", message: message, preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alertVC, animated: true, completion: nil)
-    }
-
-    @IBAction func tappedEqualButton(_ sender: UIButton) {
-        guard calculatorService.expressionIsCorrect else {
-            presentAlert(message: "Entrez une expression correcte !")
-            return
-        }
-        
-        guard calculatorService.expressionHaveEnoughElement else {
-            presentAlert(message: "Démarrez un nouveau calcul !")
-            return
-        }
-        
-        // Create local copy of operations
-        var operationsToReduce = calculatorService.elements
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.count > 1 {
-            let left = Int(operationsToReduce[0])!
-            let operand = operationsToReduce[1]
-            let right = Int(operationsToReduce[2])!
-            
-            let result: Int
-            switch operand {
-            case "+": result = left + right
-            case "-": result = left - right
-            case "*": result = left * right
-            case "/": result = left / right
-            default: fatalError("Unknown operator !")
-            }
-            
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert("\(result)", at: 0)
-        }
-        
-        operationTextView.text.append(" = \(operationsToReduce.first!)")
     }
 
 }
