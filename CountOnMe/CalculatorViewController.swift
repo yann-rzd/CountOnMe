@@ -21,6 +21,7 @@ final class CalculatorViewController: UIViewController {
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        calculatorService.resetOperation()
         calculatorService.delegate = self
         // Do any additional setup after loading the view.
     }

@@ -95,6 +95,10 @@ final class CalculatorService {
         return elements.isEmpty || elements.last == "+" || elements.last == "-" || elements.last == "*" || elements.last == "/"
     }
     
+    var expressionIsNotDividedByZero: Bool {
+        return !operation.contains("/ 0")
+    }
+    
     func add(digit: Int) {
         guard !expressionHaveResult else {
             resetOperation()
@@ -151,16 +155,20 @@ final class CalculatorService {
             return (false, "")
         }
         
+        guard expressionIsNotDividedByZero else {
+            return (false, "Impossible de diviser par 0")
+        }
+        
         // Create local copy of operations
         var operationsToReduce = elements
         
         // Iterate over operations while an operand still here
         while operationsToReduce.count > 1 {
-            let left = Int(operationsToReduce[0])!
+            let left = Double(operationsToReduce[0])!
             let operand = operationsToReduce[1]
-            let right = Int(operationsToReduce[2])!
+            let right = Double(operationsToReduce[2])!
             
-            let result: Int
+            let result: Double
             switch operand {
             case "+": result = left + right
             case "-": result = left - right
@@ -170,7 +178,7 @@ final class CalculatorService {
             }
             
             operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert("\(result)", at: 0)
+            operationsToReduce.insert("\(result.clean)", at: 0)
         }
         
         if let operationsToReduceFirst = operationsToReduce.first {
@@ -183,4 +191,11 @@ final class CalculatorService {
     func resetOperation() {
         operation.removeAll()
     }
+}
+
+extension Double {
+    var clean: String {
+       return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+    }
+
 }
