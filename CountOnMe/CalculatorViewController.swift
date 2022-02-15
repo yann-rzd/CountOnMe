@@ -41,6 +41,13 @@ final class CalculatorViewController: UIViewController {
         }
     }
     
+    @IBAction func didTapOpeningBracket(_ sender: Any) {
+        calculatorService.addOpeningBracket()
+    }
+    
+    @IBAction func didTapClosingBracket(_ sender: Any) {
+        calculatorService.addClosingBracket()
+    }
     
     @IBAction func didTapMathOperatorButton(_ sender: UIButton) {
         guard let mathOperatorButtonTitleCharacter = sender.title(for: .normal)?.first,
@@ -68,6 +75,9 @@ final class CalculatorViewController: UIViewController {
         }
     }
     
+    @IBAction func didTapOnDeleteButton(_ sender: Any) {
+        calculatorService.removeLastAction()
+    }
     
     @IBAction func didTapResetButton() {
         calculatorService.resetOperation()
@@ -90,3 +100,4 @@ extension CalculatorViewController: CalculatorServiceDelegate {
     
     
 }
+

@@ -87,6 +87,7 @@ final class CalculatorService {
         elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
     }
     
+    
     var expressionHaveResult: Bool {
         return operation.firstIndex(of: "=") != nil
     }
@@ -99,6 +100,10 @@ final class CalculatorService {
         return !operation.contains("/ 0")
     }
     
+    let brackets: [Character: Character] = ["[":"]"]
+    var openBrackets: [Character] { return Array(brackets.keys) as! [Character] }
+    var closeBrackets: [Character] { return Array(brackets.values) as! [Character] }
+    
     func add(digit: Int) {
         guard !expressionHaveResult else {
             resetOperation()
@@ -106,6 +111,24 @@ final class CalculatorService {
             return
         }
         operation.append(digit.description)
+    }
+    
+    func addOpeningBracket() {
+        guard !expressionHaveResult else {
+            resetOperation()
+            operation.append("(")
+            return
+        }
+        operation.append("(")
+    }
+    
+    func addClosingBracket() {
+        guard !expressionHaveResult else {
+            resetOperation()
+            operation.append(")")
+            return
+        }
+        operation.append(")")
     }
     
     func add(mathOperator: MathOperator) throws {
@@ -159,6 +182,10 @@ final class CalculatorService {
             return (false, "Impossible de diviser par 0")
         }
         
+        guard isBalanced(operation) else {
+            return (false, "Une des parenthèse n'est pas fermée")
+        }
+        
         // Create local copy of operations
         var operationsToReduce = elements
         
@@ -190,6 +217,38 @@ final class CalculatorService {
     
     func resetOperation() {
         operation.removeAll()
+    }
+    
+    func removeLastAction() {
+        guard !operation.isEmpty else {
+            return
+        }
+        operation.removeLast()
+    }
+    
+    private func isBalanced(_ string: String) -> Bool {
+        if string.count % 2 != 0 { return false }
+        var stack: [Character] = []
+        for character in string {
+            if closeBrackets.contains(character) {
+                if stack.isEmpty {
+                    return false
+                } else {
+                    let indexOfLastCharacter = stack.endIndex - 1
+                    let lastCharacterOnStack = stack[indexOfLastCharacter]
+                    if character == brackets[lastCharacterOnStack] {
+                        stack.removeLast()
+                    } else {
+                        return false
+                    }
+                }
+            }
+            if openBrackets.contains(character) {
+                stack.append(character)
+            }
+        }
+        
+        return stack.isEmpty
     }
 }
 
