@@ -16,8 +16,6 @@ final class CalculatorViewController: UIViewController {
     
     
     private let calculatorService = CalculatorService()
-    
-    
 
     
     // View Life cycles
@@ -26,14 +24,20 @@ final class CalculatorViewController: UIViewController {
         calculatorService.delegate = self
         // Do any additional setup after loading the view.
     }
-    
 
-    
     
     
     // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         calculatorService.add(digit: sender.tag)
+    }
+    
+    @IBAction func didTapPointButton(_ sender: UIButton) {
+        do {
+            try calculatorService.add()
+        } catch {
+            presentAlert(message: "Un point est déja mis !")
+        }
     }
     
     @IBAction func didTapMathOperatorButton(_ sender: UIButton) {
@@ -87,6 +91,8 @@ final class CalculatorViewController: UIViewController {
             switch operand {
             case "+": result = left + right
             case "-": result = left - right
+            case "*": result = left * right
+            case "/": result = left / right
             default: fatalError("Unknown operator !")
             }
             
