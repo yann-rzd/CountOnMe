@@ -26,11 +26,6 @@ final class CalculatorService {
         return operation.split(separator: " ").map { "\($0)" }
     }
     
-    let formatter = NumberFormatter()
-    formatter.minimumFractionDigits = 0
-    formatter.maximumFractionDigits = 2
-    formatter.numberStyle = .decimal
-    
     // Error check computed variables
     var expressionIsCorrect: Bool {
         return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/"
@@ -61,9 +56,13 @@ final class CalculatorService {
         return !operation.contains("/ 0")
     }
     
-    //    let brackets: [Character: Character] = ["(":")"]
-    //    var openBrackets: [Character] { return Array(brackets.keys) as! [Character] }
-    //    var closeBrackets: [Character] { return Array(brackets.values) as! [Character] }
+    var expressionContainBracket: Bool {
+        return operation.contains("(") && operation.contains(")")
+    }
+    
+    let brackets: [Character: Character] = ["(":")"]
+    var openBrackets: [Character] { return Array(brackets.keys) }
+    var closeBrackets: [Character] { return Array(brackets.values) }
     
     func add(digit: Int) {
         guard !expressionHaveResult else {
@@ -143,10 +142,12 @@ final class CalculatorService {
             return (false, "Impossible de diviser par 0")
         }
         
-        //        guard isBalanced(operation) else {
-        //            return (false, "Une des parenthèse n'est pas fermée")
-        //        }
-        
+        if expressionContainBracket {
+            guard isBalanced(operation) else {
+                return (false, "Une des parenthèse n'est pas fermée")
+            }
+        }
+            
         let expression = NSExpression(format: operation)
         let result = expression.expressionValue(with: nil, context: nil) as! Double
         let resultString = formatResult(result: result)
@@ -204,30 +205,34 @@ final class CalculatorService {
         }
     }
     
-    //    private func isBalanced(_ string: String) -> Bool {
-    //        if string.count % 2 != 0 { return false }
-    //        var stack: [Character] = []
-    //        for character in string {
-    //            if closeBrackets.contains(character) {
-    //                if stack.isEmpty {
-    //                    return false
-    //                } else {
-    //                    let indexOfLastCharacter = stack.endIndex - 1
-    //                    let lastCharacterOnStack = stack[indexOfLastCharacter]
-    //                    if character == brackets[lastCharacterOnStack] {
-    //                        stack.removeLast()
-    //                    } else {
-    //                        return false
-    //                    }
-    //                }
-    //            }
-    //            if openBrackets.contains(character) {
-    //                stack.append(character)
-    //            }
-    //        }
-    //
-    //        return stack.isEmpty
-    //    }
+        private func isBalanced(_ string: String) -> Bool {
+            guard !string.isEmpty else {
+                return false
+            }
+            
+            if string.count % 2 != 0 { return false }
+            var stack: [Character] = []
+            for character in string {
+                if closeBrackets.contains(character) {
+                    if stack.isEmpty {
+                        return false
+                    } else {
+                        let indexOfLastCharacter = stack.endIndex - 1
+                        let lastCharacterOnStack = stack[indexOfLastCharacter]
+                        if character == brackets[lastCharacterOnStack] {
+                            stack.removeLast()
+                        } else {
+                            return false
+                        }
+                    }
+                }
+                if openBrackets.contains(character) {
+                    stack.append(character)
+                }
+            }
+    
+            return stack.isEmpty
+        }
 }
 
 
