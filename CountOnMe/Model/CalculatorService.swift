@@ -100,9 +100,9 @@ final class CalculatorService {
         return !operation.contains("/ 0")
     }
     
-    let brackets: [Character: Character] = ["[":"]"]
-    var openBrackets: [Character] { return Array(brackets.keys) as! [Character] }
-    var closeBrackets: [Character] { return Array(brackets.values) as! [Character] }
+//    let brackets: [Character: Character] = ["(":")"]
+//    var openBrackets: [Character] { return Array(brackets.keys) as! [Character] }
+//    var closeBrackets: [Character] { return Array(brackets.values) as! [Character] }
     
     func add(digit: Int) {
         guard !expressionHaveResult else {
@@ -165,6 +165,10 @@ final class CalculatorService {
         
     }
     
+    func equals() {
+        let expression = NSExpression(format: operation)
+    }
+    
     func solveOperation() -> (isOperationSolved: Bool, message: String) {
         guard expressionIsCorrect else {
             return (false, "Veuillez entrer une expression correcte.")
@@ -182,9 +186,9 @@ final class CalculatorService {
             return (false, "Impossible de diviser par 0")
         }
         
-        guard isBalanced(operation) else {
-            return (false, "Une des parenthèse n'est pas fermée")
-        }
+//        guard isBalanced(operation) else {
+//            return (false, "Une des parenthèse n'est pas fermée")
+//        }
         
         // Create local copy of operations
         var operationsToReduce = elements
@@ -226,30 +230,30 @@ final class CalculatorService {
         operation.removeLast()
     }
     
-    private func isBalanced(_ string: String) -> Bool {
-        if string.count % 2 != 0 { return false }
-        var stack: [Character] = []
-        for character in string {
-            if closeBrackets.contains(character) {
-                if stack.isEmpty {
-                    return false
-                } else {
-                    let indexOfLastCharacter = stack.endIndex - 1
-                    let lastCharacterOnStack = stack[indexOfLastCharacter]
-                    if character == brackets[lastCharacterOnStack] {
-                        stack.removeLast()
-                    } else {
-                        return false
-                    }
-                }
-            }
-            if openBrackets.contains(character) {
-                stack.append(character)
-            }
-        }
-        
-        return stack.isEmpty
-    }
+//    private func isBalanced(_ string: String) -> Bool {
+//        if string.count % 2 != 0 { return false }
+//        var stack: [Character] = []
+//        for character in string {
+//            if closeBrackets.contains(character) {
+//                if stack.isEmpty {
+//                    return false
+//                } else {
+//                    let indexOfLastCharacter = stack.endIndex - 1
+//                    let lastCharacterOnStack = stack[indexOfLastCharacter]
+//                    if character == brackets[lastCharacterOnStack] {
+//                        stack.removeLast()
+//                    } else {
+//                        return false
+//                    }
+//                }
+//            }
+//            if openBrackets.contains(character) {
+//                stack.append(character)
+//            }
+//        }
+//
+//        return stack.isEmpty
+//    }
 }
 
 extension Double {
