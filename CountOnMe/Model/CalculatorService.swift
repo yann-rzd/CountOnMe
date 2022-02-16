@@ -8,53 +8,9 @@
 
 import Foundation
 
-enum MathOperator {
-    
-    case plus
-    case minus
-    case multiply
-    case divide
-    
-    init?(symbol: Character) {
-        switch symbol {
-        case "+":
-            self = .plus
-        case "-":
-            self = .minus
-        case "*":
-            self = .multiply
-        case "/":
-            self = .divide
-        default:
-            return nil
-        }
-    }
-    
-    var symbol: Character {
-        switch self {
-        case .plus:
-            return "+"
-        case .minus:
-            return "-"
-        case .multiply:
-            return "*"
-        case .divide:
-            return "/"
-        }
-    }
-}
-
-
-enum CalculatorServiceError: Error {
-    case failedToAddMathOperator
-    case failedToAddPoint
-}
-
-
 protocol CalculatorServiceDelegate: AnyObject {
     func didUpdateOperation(operation: String)
 }
-
 
 final class CalculatorService {
     
@@ -69,6 +25,11 @@ final class CalculatorService {
     var elements: [String] {
         return operation.split(separator: " ").map { "\($0)" }
     }
+    
+    let formatter = NumberFormatter()
+    formatter.minimumFractionDigits = 0
+    formatter.maximumFractionDigits = 2
+    formatter.numberStyle = .decimal
     
     // Error check computed variables
     var expressionIsCorrect: Bool {
@@ -100,9 +61,9 @@ final class CalculatorService {
         return !operation.contains("/ 0")
     }
     
-//    let brackets: [Character: Character] = ["(":")"]
-//    var openBrackets: [Character] { return Array(brackets.keys) as! [Character] }
-//    var closeBrackets: [Character] { return Array(brackets.values) as! [Character] }
+    //    let brackets: [Character: Character] = ["(":")"]
+    //    var openBrackets: [Character] { return Array(brackets.keys) as! [Character] }
+    //    var closeBrackets: [Character] { return Array(brackets.values) as! [Character] }
     
     func add(digit: Int) {
         guard !expressionHaveResult else {
@@ -165,10 +126,6 @@ final class CalculatorService {
         
     }
     
-    func equals() {
-        let expression = NSExpression(format: operation)
-    }
-    
     func solveOperation() -> (isOperationSolved: Bool, message: String) {
         guard expressionIsCorrect else {
             return (false, "Veuillez entrer une expression correcte.")
@@ -186,35 +143,41 @@ final class CalculatorService {
             return (false, "Impossible de diviser par 0")
         }
         
-//        guard isBalanced(operation) else {
-//            return (false, "Une des parenthèse n'est pas fermée")
-//        }
+        //        guard isBalanced(operation) else {
+        //            return (false, "Une des parenthèse n'est pas fermée")
+        //        }
+        
+        let expression = NSExpression(format: operation)
+        let result = expression.expressionValue(with: nil, context: nil) as! Double
+        let resultString = formatResult(result: result)
+        
+        operation.append(" = \(resultString)")
         
         // Create local copy of operations
-        var operationsToReduce = elements
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.count > 1 {
-            let left = Double(operationsToReduce[0])!
-            let operand = operationsToReduce[1]
-            let right = Double(operationsToReduce[2])!
-            
-            let result: Double
-            switch operand {
-            case "+": result = left + right
-            case "-": result = left - right
-            case "*": result = left * right
-            case "/": result = left / right
-            default: fatalError("Unknown operator !")
-            }
-            
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert("\(result.clean)", at: 0)
-        }
-        
-        if let operationsToReduceFirst = operationsToReduce.first {
-            operation.append(" = \(operationsToReduceFirst)")
-        }
+        //        var operationsToReduce = elements
+        //
+        //        // Iterate over operations while an operand still here
+        //        while operationsToReduce.count > 1 {
+        //            let left = Double(operationsToReduce[0])!
+        //            let operand = operationsToReduce[1]
+        //            let right = Double(operationsToReduce[2])!
+        //
+        //            let result: Double
+        //            switch operand {
+        //            case "+": result = left + right
+        //            case "-": result = left - right
+        //            case "*": result = left * right
+        //            case "/": result = left / right
+        //            default: fatalError("Unknown operator !")
+        //            }
+        //
+        //            operationsToReduce = Array(operationsToReduce.dropFirst(3))
+        //            operationsToReduce.insert("\(result.clean)", at: 0)
+        //        }
+        //
+        //        if let operationsToReduceFirst = operationsToReduce.first {
+        //            operation.append(" = \(operationsToReduceFirst)")
+        //        }
         
         return (true, "")
     }
@@ -230,35 +193,47 @@ final class CalculatorService {
         operation.removeLast()
     }
     
-//    private func isBalanced(_ string: String) -> Bool {
-//        if string.count % 2 != 0 { return false }
-//        var stack: [Character] = []
-//        for character in string {
-//            if closeBrackets.contains(character) {
-//                if stack.isEmpty {
-//                    return false
-//                } else {
-//                    let indexOfLastCharacter = stack.endIndex - 1
-//                    let lastCharacterOnStack = stack[indexOfLastCharacter]
-//                    if character == brackets[lastCharacterOnStack] {
-//                        stack.removeLast()
-//                    } else {
-//                        return false
-//                    }
-//                }
-//            }
-//            if openBrackets.contains(character) {
-//                stack.append(character)
-//            }
-//        }
-//
-//        return stack.isEmpty
-//    }
-}
-
-extension Double {
-    var clean: String {
-       return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+    private func formatResult(result: Double) -> String {
+        if(result.truncatingRemainder(dividingBy: 1) == 0)
+        {
+            return String(format: "%.0f", result)
+        }
+        else
+        {
+            return String(format: "%.2f", result)
+        }
     }
-
+    
+    //    private func isBalanced(_ string: String) -> Bool {
+    //        if string.count % 2 != 0 { return false }
+    //        var stack: [Character] = []
+    //        for character in string {
+    //            if closeBrackets.contains(character) {
+    //                if stack.isEmpty {
+    //                    return false
+    //                } else {
+    //                    let indexOfLastCharacter = stack.endIndex - 1
+    //                    let lastCharacterOnStack = stack[indexOfLastCharacter]
+    //                    if character == brackets[lastCharacterOnStack] {
+    //                        stack.removeLast()
+    //                    } else {
+    //                        return false
+    //                    }
+    //                }
+    //            }
+    //            if openBrackets.contains(character) {
+    //                stack.append(character)
+    //            }
+    //        }
+    //
+    //        return stack.isEmpty
+    //    }
 }
+
+
+//extension Double {
+//    var clean: String {
+//        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+//    }
+//
+//}

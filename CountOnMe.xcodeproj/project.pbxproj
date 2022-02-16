@@ -17,6 +17,8 @@
 		E443104527B56D78008E2A8E /* CalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E443104427B56D78008E2A8E /* CalculatorService.swift */; };
 		E4B5EBDA27BADEB100CA367E /* watchtest WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E4B5EBD927BADEB100CA367E /* watchtest WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E4B5EBE827BADEB200CA367E /* watchtest WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E4B5EBE727BADEB200CA367E /* watchtest WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E4B8323827BD3CEC0041A848 /* MathOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B8323727BD3CEC0041A848 /* MathOperator.swift */; };
+		E4B8323A27BD3D190041A848 /* CalculatorServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B8323927BD3D190041A848 /* CalculatorServiceError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +95,8 @@
 		E4B5EBD627BADEB100CA367E /* watchtest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchtest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4B5EBD927BADEB100CA367E /* watchtest WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watchtest WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4B5EBE727BADEB200CA367E /* watchtest WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchtest WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E4B8323727BD3CEC0041A848 /* MathOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathOperator.swift; sourceTree = "<group>"; };
+		E4B8323927BD3D190041A848 /* CalculatorServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorServiceError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,6 +190,8 @@
 			isa = PBXGroup;
 			children = (
 				E443104427B56D78008E2A8E /* CalculatorService.swift */,
+				E4B8323727BD3CEC0041A848 /* MathOperator.swift */,
+				E4B8323927BD3D190041A848 /* CalculatorServiceError.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -421,9 +427,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4B8323A27BD3D190041A848 /* CalculatorServiceError.swift in Sources */,
 				1FA43BD5224E569900F565CB /* CalculatorViewController.swift in Sources */,
 				E443104527B56D78008E2A8E /* CalculatorService.swift in Sources */,
 				1FA43BD3224E569900F565CB /* AppDelegate.swift in Sources */,
+				E4B8323827BD3CEC0041A848 /* MathOperator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
