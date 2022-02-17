@@ -21,8 +21,8 @@ final class CalculatorViewController: UIViewController {
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        calculatorService.resetOperation()
         calculatorService.delegate = self
+        calculatorService.resetOperation()
         // Do any additional setup after loading the view.
     }
     
@@ -39,14 +39,6 @@ final class CalculatorViewController: UIViewController {
         } catch {
             presentAlert(message: "Un point est déja mis !")
         }
-    }
-    
-    @IBAction func didTapOpeningBracket(_ sender: Any) {
-        calculatorService.addOpeningBracket()
-    }
-    
-    @IBAction func didTapClosingBracket(_ sender: Any) {
-        calculatorService.addClosingBracket()
     }
     
     @IBAction func didTapMathOperatorButton(_ sender: UIButton) {
@@ -73,10 +65,6 @@ final class CalculatorViewController: UIViewController {
         guard resultStatus.isOperationSolved else {
             return presentAlert(message: resultStatus.message)
         }
-    }
-    
-    @IBAction func didTapOnDeleteButton(_ sender: Any) {
-        calculatorService.removeLastAction()
     }
     
     @IBAction func didTapResetButton() {

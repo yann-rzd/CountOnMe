@@ -271,48 +271,6 @@
                                     </mask>
                                 </variation>
                             </stackView>
-                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="6uj-HS-eel">
-                                <rect key="frame" x="253" y="707" width="146" height="63"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rgl-WZ-QJi">
-                                        <rect key="frame" x="0.0" y="0.0" width="65.5" height="63"/>
-                                        <color key="backgroundColor" systemColor="labelColor"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="42"/>
-                                        <state key="normal" title="(">
-                                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="didTapOpeningBracket:" destination="eqK-jh-KKu" eventType="touchUpInside" id="q1n-HI-DOl"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bop-Hx-aND">
-                                        <rect key="frame" x="80.5" y="0.0" width="65.5" height="63"/>
-                                        <color key="backgroundColor" systemColor="labelColor"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="42"/>
-                                        <state key="normal" title=")">
-                                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="didTapClosingBracket:" destination="eqK-jh-KKu" eventType="touchUpInside" id="7zC-hz-Rhu"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="146" id="uxa-a0-mP0"/>
-                                </constraints>
-                            </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="idX-ih-agB">
-                                <rect key="frame" x="15" y="707" width="106" height="63"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemRedColor"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="42"/>
-                                <state key="normal" title="DEL">
-                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="didTapOnDeleteButton:" destination="eqK-jh-KKu" eventType="touchUpInside" id="R5k-Kz-9J4"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="AWJ-Vl-uau"/>
                         <color key="backgroundColor" red="0.87536688539999996" green="0.84808511389999996" blue="0.83804947389999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -321,14 +279,11 @@
                             <constraint firstItem="T2H-yn-nBB" firstAttribute="leading" secondItem="AWJ-Vl-uau" secondAttribute="leading" constant="15" id="6E9-tU-Ce5"/>
                             <constraint firstItem="AWJ-Vl-uau" firstAttribute="bottom" secondItem="ogr-Aw-e1h" secondAttribute="bottom" constant="10" id="9RD-ra-2B2"/>
                             <constraint firstItem="T2H-yn-nBB" firstAttribute="centerY" secondItem="eIh-hr-C95" secondAttribute="centerY" id="Dch-TC-CkJ"/>
-                            <constraint firstItem="ogr-Aw-e1h" firstAttribute="top" secondItem="6uj-HS-eel" secondAttribute="bottom" constant="22" id="HAM-SI-VeM"/>
                             <constraint firstItem="ogr-Aw-e1h" firstAttribute="leading" secondItem="AWJ-Vl-uau" secondAttribute="leading" constant="15" id="I08-hA-lc1"/>
                             <constraint firstItem="AWJ-Vl-uau" firstAttribute="trailing" secondItem="ogr-Aw-e1h" secondAttribute="trailing" constant="15" id="Lt7-4D-67a"/>
                             <constraint firstItem="isI-Gg-Iye" firstAttribute="leading" secondItem="AWJ-Vl-uau" secondAttribute="leading" constant="15" id="OPV-SC-O10"/>
                             <constraint firstItem="T2H-yn-nBB" firstAttribute="top" secondItem="AWJ-Vl-uau" secondAttribute="top" id="Pqr-nZ-6u0"/>
-                            <constraint firstItem="ogr-Aw-e1h" firstAttribute="top" secondItem="idX-ih-agB" secondAttribute="bottom" constant="22" id="TDu-ca-CdW"/>
                             <constraint firstItem="ogr-Aw-e1h" firstAttribute="leading" secondItem="T2H-yn-nBB" secondAttribute="trailing" constant="30" id="Tve-MN-HQv"/>
-                            <constraint firstItem="AWJ-Vl-uau" firstAttribute="trailing" secondItem="6uj-HS-eel" secondAttribute="trailing" constant="15" id="V9R-Ur-run"/>
                             <constraint firstItem="AWJ-Vl-uau" firstAttribute="trailing" secondItem="isI-Gg-Iye" secondAttribute="trailing" id="YO8-fw-GbT"/>
                             <constraint firstItem="T2H-yn-nBB" firstAttribute="top" secondItem="AWJ-Vl-uau" secondAttribute="top" constant="15" id="c5N-v8-Jbr"/>
                             <constraint firstItem="isI-Gg-Iye" firstAttribute="centerX" secondItem="eIh-hr-C95" secondAttribute="centerX" id="eAj-yG-2aH"/>
@@ -386,9 +341,6 @@
         </scene>
     </scenes>
     <resources>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="systemBlueColor">
             <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
@@ -397,9 +349,6 @@
         </systemColor>
         <systemColor name="systemPurpleColor">
             <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemYellowColor">
             <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

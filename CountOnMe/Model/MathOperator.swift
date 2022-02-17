@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum MathOperator {
+enum MathOperator: CaseIterable {
     
     case plus
     case minus
@@ -40,6 +40,19 @@ enum MathOperator {
             return "*"
         case .divide:
             return "/"
+        }
+    }
+    
+    var isPriority: Bool {
+        switch self {
+        case .plus:
+            return false
+        case .minus:
+            return false
+        case .multiply:
+            return true
+        case .divide:
+            return true
         }
     }
 }

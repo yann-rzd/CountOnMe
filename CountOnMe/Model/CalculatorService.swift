@@ -30,23 +30,26 @@ final class CalculatorService {
     
     // Error check computed variables
     var expressionIsCorrect: Bool {
-        return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/"
+        !isLastElementMathOperator
     }
     
     var expressionHaveEnoughElement: Bool {
         return elements.count >= 3
     }
     
-    var canAddOperator: Bool {
-        return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/" && elements.first != nil
-    }
-    
-    var canAddMinusOperator: Bool {
-        return elements.first == nil || elements.last != "+ -" && elements.last != "- -" && elements.last != "* -" && elements.last != "/ -"
-    }
-    
     var canAddDecimalPoint: Bool {
-        elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
+        guard !elements.isEmpty else {
+            return true
+        }
+        
+        guard let lastElement = elements.last else {
+            return false
+        }
+        
+        return !lastElement.contains(".")
+        
+        
+        //elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
     }
     
     var expressionHaveResult: Bool {
@@ -54,24 +57,19 @@ final class CalculatorService {
     }
     
     var conditionForZeroBeforeDecimalPoint: Bool {
-        return elements.isEmpty || elements.last == "+" || elements.last == "-" || elements.last == "*" || elements.last == "/"
+        isLastElementMathOperator || elements.isEmpty
     }
     
     var expressionIsNotDividedByZero: Bool {
         return !operation.contains("/ 0")
     }
     
-    var expressionContainBracket: Bool {
-        return operation.contains("(") && operation.contains(")")
-    }
-    
     var expressionContainsMultiplyOrDivide: Bool {
-        elements.firstIndex(of: "*") != nil || elements.firstIndex(of: "/") != nil
+        elements.contains { element in
+            isSymbolPriority(symbol: element)
+        }
+        //elements.firstIndex(of: "*") != nil || elements.firstIndex(of: "/") != nil
     }
-    
-    let brackets: [Character: Character] = ["(":")"]
-    var openBrackets: [Character] { return Array(brackets.keys) }
-    var closeBrackets: [Character] { return Array(brackets.values) }
     
     func add(digit: Int) {
         guard !expressionHaveResult else {
@@ -82,39 +80,15 @@ final class CalculatorService {
         operation.append(digit.description)
     }
     
-    func addOpeningBracket() {
-        guard !expressionHaveResult else {
-            resetOperation()
-            operation.append("(")
-            return
-        }
-        operation.append("(")
-    }
-    
-    func addClosingBracket() {
-        guard !expressionHaveResult else {
-            resetOperation()
-            operation.append(")")
-            return
-        }
-        operation.append(")")
-    }
-    
     func add(mathOperator: MathOperator) throws {
         guard !expressionHaveResult else {
             return
         }
         
-        if mathOperator != MathOperator.minus  {
-            guard canAddOperator else {
-                throw CalculatorServiceError.failedToAddMathOperator
-            }
-        } else {
-            guard canAddMinusOperator else {
-                throw CalculatorServiceError.failedToAddMathOperator
-            }
+        guard canAdd(mathOperator: mathOperator) else {
+            throw CalculatorServiceError.failedToAddMathOperator
         }
-        
+
         
         operation.append(" \(mathOperator.symbol) ")
     }
@@ -144,13 +118,6 @@ final class CalculatorService {
     
     func resetOperation() {
         operation.removeAll()
-    }
-    
-    func removeLastAction() {
-        guard !operation.isEmpty else {
-            return
-        }
-        operation.removeLast()
     }
     
     func solveOperation() -> (isOperationSolved: Bool, message: String) {
@@ -194,41 +161,37 @@ final class CalculatorService {
     private func solveMultiplyAndDivideOperations() {
         while expressionContainsMultiplyOrDivide {
             print("expressionContainsMultiplyOrDivide : \(expressionContainsMultiplyOrDivide)")
-            let indexOperand: Int?
+            //let indexOperand: Int?
             
-            if (operationsToReduce.firstIndex(of: "*") != nil) {
-                indexOperand = operationsToReduce.firstIndex(of: "*")
-                print("indexOperand : \(indexOperand!)")
+            if let indexOperand = operationsToReduce.firstIndex(of: "*") {
+                print("indexOperand : \(indexOperand)")
                 
-                let left = Double(operationsToReduce[indexOperand!-1])!
+                let left = Double(operationsToReduce[indexOperand-1])!
                 print("left : \(left)")
-                let right = Double(operationsToReduce[indexOperand!+1])!
+                let right = Double(operationsToReduce[indexOperand+1])!
                 print("right : \(right)")
                 
                 let result = Double(left * right)
                 print("result : \(result)")
                 
-                operationsToReduce.insert("\(result.clean)", at: indexOperand!-1)
+                operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
                 print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand!)
+                operationsToReduce.remove(at: indexOperand)
                 print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand!)
+                operationsToReduce.remove(at: indexOperand)
                 print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand!)
+                operationsToReduce.remove(at: indexOperand)
                 print("operationToReduce : \(operationsToReduce!)")
                 
-            } else if (operationsToReduce.firstIndex(of: "/") != nil) {
-                indexOperand = operationsToReduce.firstIndex(of: "/")
+            } else if let indexOperand = operationsToReduce.firstIndex(of: "/") {
                 
-                let left = Double(operationsToReduce[indexOperand!-1])!
-                let right = Double(operationsToReduce[indexOperand!+1])!
+                let left = Double(operationsToReduce[indexOperand-1])!
+                let right = Double(operationsToReduce[indexOperand+1])!
                 
                 let result = Double(left / right)
                 
-                operationsToReduce.insert("\(result.clean)", at: indexOperand!-1)
-                operationsToReduce.remove(at: indexOperand!)
-                operationsToReduce.remove(at: indexOperand!)
-                operationsToReduce.remove(at: indexOperand!)
+                operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
+                operationsToReduce.removeSubrange(indexOperand-1...indexOperand+1)
             } else {
                 return
             }
@@ -255,44 +218,74 @@ final class CalculatorService {
     }
     
     private func mergeMinusToNegativeDigit() {
-        while operationsToReduce.firstIndex(of: "-") != nil {
-            let minusIndex: Int?
-            minusIndex = operationsToReduce.firstIndex(of: "-")
+        while let minusIndex = operationsToReduce.firstIndex(of: "-") {
             
-            if operationsToReduce[minusIndex!+1] == "-" {
-                operationsToReduce[minusIndex!+1] = "\(operationsToReduce[minusIndex!+1])\(operationsToReduce[minusIndex!+2])"
-                operationsToReduce.remove(at: minusIndex!+2)
-            } else if minusIndex == 0 || operationsToReduce[minusIndex!-1] == "+" || operationsToReduce[minusIndex!-1] == "*" || operationsToReduce[minusIndex!-1] == "/" {
-                operationsToReduce[minusIndex!] = "\(operationsToReduce[minusIndex!])\(operationsToReduce[minusIndex!+1])"
-                operationsToReduce.remove(at: minusIndex!+1)
+            if operationsToReduce[minusIndex+1] == "-" {
+                operationsToReduce[minusIndex+1] = "\(operationsToReduce[minusIndex+1])\(operationsToReduce[minusIndex+2])"
+                operationsToReduce.remove(at: minusIndex+2)
+            } else if minusIndex == 0 || operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "*" || operationsToReduce[minusIndex-1] == "/" {
+                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
+                operationsToReduce.remove(at: minusIndex+1)
             }
         }
     }
     
-//    private func isBalanced(_ string: String) -> Bool {
-//        if string.count % 2 != 0 { return false }
-//        var stack: [Character] = []
-//        for character in string {
-//            if closeBrackets.contains(character) {
-//                if stack.isEmpty {
-//                    return false
-//                } else {
-//                    let indexOfLastCharacter = stack.endIndex - 1
-//                    let lastCharacterOnStack = stack[indexOfLastCharacter]
-//                    if character == brackets[lastCharacterOnStack] {
-//                        stack.removeLast()
-//                    } else {
-//                        return false
-//                    }
-//                }
-//            }
-//            if openBrackets.contains(character) {
-//                stack.append(character)
-//            }
-//        }
-//
-//        return stack.isEmpty
-//    }
+    private func canAdd(mathOperator: MathOperator) -> Bool {
+
+        guard mathOperator != .minus else {
+            return canAddMinusOperator
+        }
+        
+        guard let lastElement = elements.last else {
+            return false
+        }
+        
+        return !MathOperator.allCases.contains { mathOperator in
+            mathOperator.symbol.description == lastElement
+        }
+        
+        // return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/" && elements.first != nil
+    }
+    
+    private var canAddMinusOperator: Bool {
+        !(isLastElementMathOperator && isPreviousLastElementMathOperator)
+    }
+    
+    
+    private var isLastElementMathOperator: Bool {
+        guard let lastElement = elements.last else {
+            return false
+        }
+        
+        return isSymbolMathOperator(symbol: lastElement)
+    }
+    
+    private var isPreviousLastElementMathOperator: Bool {
+        guard elements.count >= 2 else {
+            return false
+        }
+        
+        let previousLastElement = elements[elements.count - 2]
+        
+        return isSymbolMathOperator(symbol: previousLastElement)
+        
+    }
+    
+    private func isSymbolMathOperator(symbol: String) -> Bool {
+        MathOperator.allCases.contains { mathOperator in
+            mathOperator.symbol.description == symbol
+        }
+    }
+    
+    private func isSymbolPriority(symbol: String) -> Bool {
+        guard
+            let symbolAsCharacter = symbol.first,
+            let mathOperator = MathOperator(symbol: symbolAsCharacter) else {
+            return false
+        }
+        
+        return mathOperator.isPriority
+    }
 }
 
 

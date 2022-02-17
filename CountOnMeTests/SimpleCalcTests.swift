@@ -32,4 +32,24 @@ class CalculatorServiceTests: XCTestCase {
         
         XCTAssertTrue(calculator.operation.contains("1"))
     }
+    
+    
+    func test_givenOperationWithLastElementIsMathOperator_whenAddOperator_thenCannotAddMathOperator() throws {
+        calculator.add(digit: 3)
+        try calculator.add(mathOperator: .plus)
+        
+        
+        XCTAssertThrowsError(try calculator.add(mathOperator: .plus), "") { error in
+            guard let calculatorError = error as? CalculatorServiceError else {
+                XCTFail()
+                return
+            }
+            XCTAssertEqual(calculatorError, .failedToAddMathOperator)
+        }
+        
+    }
+    
+    
+    
 }
+
