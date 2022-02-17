@@ -26,6 +26,8 @@ final class CalculatorService {
         return operation.split(separator: " ").map { "\($0)" }
     }
     
+    var operationsToReduce: [String]!
+    
     // Error check computed variables
     var expressionIsCorrect: Bool {
         return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/"
@@ -39,10 +41,13 @@ final class CalculatorService {
         return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/" && elements.first != nil
     }
     
+    var canAddMinusOperator: Bool {
+        return elements.first == nil || elements.last != "+ -" && elements.last != "- -" && elements.last != "* -" && elements.last != "/ -"
+    }
+    
     var canAddDecimalPoint: Bool {
         elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
     }
-    
     
     var expressionHaveResult: Bool {
         return operation.firstIndex(of: "=") != nil
@@ -58,6 +63,10 @@ final class CalculatorService {
     
     var expressionContainBracket: Bool {
         return operation.contains("(") && operation.contains(")")
+    }
+    
+    var expressionContainsMultiplyOrDivide: Bool {
+        elements.firstIndex(of: "*") != nil || elements.firstIndex(of: "/") != nil
     }
     
     let brackets: [Character: Character] = ["(":")"]
@@ -95,9 +104,17 @@ final class CalculatorService {
         guard !expressionHaveResult else {
             return
         }
-        guard canAddOperator else {
-            throw CalculatorServiceError.failedToAddMathOperator
+        
+        if mathOperator != MathOperator.minus  {
+            guard canAddOperator else {
+                throw CalculatorServiceError.failedToAddMathOperator
+            }
+        } else {
+            guard canAddMinusOperator else {
+                throw CalculatorServiceError.failedToAddMathOperator
+            }
         }
+        
         
         operation.append(" \(mathOperator.symbol) ")
     }
@@ -125,6 +142,17 @@ final class CalculatorService {
         
     }
     
+    func resetOperation() {
+        operation.removeAll()
+    }
+    
+    func removeLastAction() {
+        guard !operation.isEmpty else {
+            return
+        }
+        operation.removeLast()
+    }
+    
     func solveOperation() -> (isOperationSolved: Bool, message: String) {
         guard expressionIsCorrect else {
             return (false, "Veuillez entrer une expression correcte.")
@@ -142,103 +170,135 @@ final class CalculatorService {
             return (false, "Impossible de diviser par 0")
         }
         
-        if expressionContainBracket {
-            guard isBalanced(operation) else {
-                return (false, "Une des parenthèse n'est pas fermée")
-            }
-        }
+//        if expressionContainBracket {
+//            guard isBalanced(operation) else {
+//                return (false, "Une des parenthèse n'est pas fermée")
+//            }
+//        }
+        
+        operationsToReduce = elements
+        print("operationToReduce : \(operationsToReduce!)")
+        
+        while operationsToReduce.count > 1 {
+            print("operationToReduce : \(operationsToReduce!)")
+            mergeMinusToNegativeDigit()
+            solveMultiplyAndDivideOperations()
+            solvePlusAndMinusOperations()
             
-        let expression = NSExpression(format: operation)
-        let result = expression.expressionValue(with: nil, context: nil) as! Double
-        let resultString = formatResult(result: result)
-        
-        operation.append(" = \(resultString)")
-        
-        // Create local copy of operations
-        //        var operationsToReduce = elements
-        //
-        //        // Iterate over operations while an operand still here
-        //        while operationsToReduce.count > 1 {
-        //            let left = Double(operationsToReduce[0])!
-        //            let operand = operationsToReduce[1]
-        //            let right = Double(operationsToReduce[2])!
-        //
-        //            let result: Double
-        //            switch operand {
-        //            case "+": result = left + right
-        //            case "-": result = left - right
-        //            case "*": result = left * right
-        //            case "/": result = left / right
-        //            default: fatalError("Unknown operator !")
-        //            }
-        //
-        //            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-        //            operationsToReduce.insert("\(result.clean)", at: 0)
-        //        }
-        //
-        //        if let operationsToReduceFirst = operationsToReduce.first {
-        //            operation.append(" = \(operationsToReduceFirst)")
-        //        }
-        
+            operation.append(" = \(operationsToReduce.first!)")
+            print("operation : \(operation)")
+        }
         return (true, "")
     }
     
-    func resetOperation() {
-        operation.removeAll()
+    private func solveMultiplyAndDivideOperations() {
+        while expressionContainsMultiplyOrDivide {
+            print("expressionContainsMultiplyOrDivide : \(expressionContainsMultiplyOrDivide)")
+            let indexOperand: Int?
+            
+            if (operationsToReduce.firstIndex(of: "*") != nil) {
+                indexOperand = operationsToReduce.firstIndex(of: "*")
+                print("indexOperand : \(indexOperand!)")
+                
+                let left = Double(operationsToReduce[indexOperand!-1])!
+                print("left : \(left)")
+                let right = Double(operationsToReduce[indexOperand!+1])!
+                print("right : \(right)")
+                
+                let result = Double(left * right)
+                print("result : \(result)")
+                
+                operationsToReduce.insert("\(result.clean)", at: indexOperand!-1)
+                print("operationToReduce : \(operationsToReduce!)")
+                operationsToReduce.remove(at: indexOperand!)
+                print("operationToReduce : \(operationsToReduce!)")
+                operationsToReduce.remove(at: indexOperand!)
+                print("operationToReduce : \(operationsToReduce!)")
+                operationsToReduce.remove(at: indexOperand!)
+                print("operationToReduce : \(operationsToReduce!)")
+                
+            } else if (operationsToReduce.firstIndex(of: "/") != nil) {
+                indexOperand = operationsToReduce.firstIndex(of: "/")
+                
+                let left = Double(operationsToReduce[indexOperand!-1])!
+                let right = Double(operationsToReduce[indexOperand!+1])!
+                
+                let result = Double(left / right)
+                
+                operationsToReduce.insert("\(result.clean)", at: indexOperand!-1)
+                operationsToReduce.remove(at: indexOperand!)
+                operationsToReduce.remove(at: indexOperand!)
+                operationsToReduce.remove(at: indexOperand!)
+            } else {
+                return
+            }
+        }
     }
     
-    func removeLastAction() {
-        guard !operation.isEmpty else {
-            return
-        }
-        operation.removeLast()
-    }
-    
-    private func formatResult(result: Double) -> String {
-        if(result.truncatingRemainder(dividingBy: 1) == 0)
-        {
-            return String(format: "%.0f", result)
-        }
-        else
-        {
-            return String(format: "%.2f", result)
-        }
-    }
-    
-        private func isBalanced(_ string: String) -> Bool {
-            guard !string.isEmpty else {
-                return false
+    private func solvePlusAndMinusOperations() {
+        
+        if operationsToReduce.count >= 3 {
+            let left = Double(operationsToReduce[0])!
+            let operand = operationsToReduce[1]
+            let right = Double(operationsToReduce[2])!
+            
+            let result: Double
+            switch operand {
+            case "+": result = left + right
+            case "-": result = left - right
+            default: fatalError("Unknown operator !")
             }
             
-            if string.count % 2 != 0 { return false }
-            var stack: [Character] = []
-            for character in string {
-                if closeBrackets.contains(character) {
-                    if stack.isEmpty {
-                        return false
-                    } else {
-                        let indexOfLastCharacter = stack.endIndex - 1
-                        let lastCharacterOnStack = stack[indexOfLastCharacter]
-                        if character == brackets[lastCharacterOnStack] {
-                            stack.removeLast()
-                        } else {
-                            return false
-                        }
-                    }
-                }
-                if openBrackets.contains(character) {
-                    stack.append(character)
-                }
-            }
-    
-            return stack.isEmpty
+            operationsToReduce = Array(operationsToReduce.dropFirst(3))
+            operationsToReduce.insert("\(result.clean)", at: 0)
         }
+    }
+    
+    private func mergeMinusToNegativeDigit() {
+        while operationsToReduce.firstIndex(of: "-") != nil {
+            let minusIndex: Int?
+            minusIndex = operationsToReduce.firstIndex(of: "-")
+            
+            if operationsToReduce[minusIndex!+1] == "-" {
+                operationsToReduce[minusIndex!+1] = "\(operationsToReduce[minusIndex!+1])\(operationsToReduce[minusIndex!+2])"
+                operationsToReduce.remove(at: minusIndex!+2)
+            } else if minusIndex == 0 || operationsToReduce[minusIndex!-1] == "+" || operationsToReduce[minusIndex!-1] == "*" || operationsToReduce[minusIndex!-1] == "/" {
+                operationsToReduce[minusIndex!] = "\(operationsToReduce[minusIndex!])\(operationsToReduce[minusIndex!+1])"
+                operationsToReduce.remove(at: minusIndex!+1)
+            }
+        }
+    }
+    
+//    private func isBalanced(_ string: String) -> Bool {
+//        if string.count % 2 != 0 { return false }
+//        var stack: [Character] = []
+//        for character in string {
+//            if closeBrackets.contains(character) {
+//                if stack.isEmpty {
+//                    return false
+//                } else {
+//                    let indexOfLastCharacter = stack.endIndex - 1
+//                    let lastCharacterOnStack = stack[indexOfLastCharacter]
+//                    if character == brackets[lastCharacterOnStack] {
+//                        stack.removeLast()
+//                    } else {
+//                        return false
+//                    }
+//                }
+//            }
+//            if openBrackets.contains(character) {
+//                stack.append(character)
+//            }
+//        }
+//
+//        return stack.isEmpty
+//    }
 }
 
 
-//extension Double {
-//    var clean: String {
-//        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
-//    }
-//
-//}
+extension Double {
+    var clean: String {
+        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+    }
+
+}

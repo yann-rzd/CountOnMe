@@ -10,37 +10,26 @@ import XCTest
 @testable import CountOnMe
 
 class CalculatorServiceTests: XCTestCase {
+    var calculator: CalculatorService!
 
     override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        super.setUp()
+        calculator = CalculatorService()
     }
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func test_addDigit() {
-        let calculatorService = CalculatorService()
-        XCTAssertTrue(calculatorService.operation.isEmpty)
+    func testGivenNoDigitAdded_WhenTapOnOneButton_ThenOneIsAdded() {
+        calculator.operation = ""
         
-        calculatorService.add(digit: 5)
+        calculator.add(digit: 1)
         
-        XCTAssertEqual(calculatorService.operation, "5")
-
-    }
-
-    
-    func test_addDigit_zero() {
-        let calculatorService = CalculatorService()
-        XCTAssertTrue(calculatorService.operation.isEmpty)
-        
-        calculatorService.add(digit: 0)
-        calculatorService.add(digit: 0)
-        
-        XCTAssertEqual(calculatorService.operation, "0")
-
+        XCTAssertTrue(calculator.operation.contains("1"))
     }
     
-    
-
+    func testGivenExpressionHaveNoResult_WhenAddADigit_ThenExpressionIsResetAnddDigitAdded() {
+        calculator.operation = "1 + 1 = 2"
+        
+        calculator.add(digit: 1)
+        
+        XCTAssertTrue(calculator.operation.contains("1"))
+    }
 }
