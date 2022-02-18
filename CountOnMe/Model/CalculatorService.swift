@@ -26,18 +26,18 @@ final class CalculatorService {
         return operation.split(separator: " ").map { "\($0)" }
     }
     
-    var operationsToReduce: [String]!
+    private var operationsToReduce: [String]!
     
     // Error check computed variables
-    var expressionIsCorrect: Bool {
+    private var expressionIsCorrect: Bool {
         !isLastElementMathOperator
     }
     
-    var expressionHaveEnoughElement: Bool {
+    private var expressionHaveEnoughElement: Bool {
         return elements.count >= 3
     }
     
-    var canAddDecimalPoint: Bool {
+    private var canAddDecimalPoint: Bool {
         guard !elements.isEmpty else {
             return true
         }
@@ -52,19 +52,19 @@ final class CalculatorService {
         //elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
     }
     
-    var expressionHaveResult: Bool {
+    private var expressionHaveResult: Bool {
         return operation.firstIndex(of: "=") != nil
     }
     
-    var conditionForZeroBeforeDecimalPoint: Bool {
+    private var conditionForZeroBeforeDecimalPoint: Bool {
         isLastElementMathOperator || elements.isEmpty
     }
     
-    var expressionIsNotDividedByZero: Bool {
+    private var expressionIsNotDividedByZero: Bool {
         return !operation.contains("/ 0")
     }
     
-    var expressionContainsMultiplyOrDivide: Bool {
+    private var expressionContainsMultiplyOrDivide: Bool {
         elements.contains { element in
             isSymbolPriority(symbol: element)
         }
@@ -89,7 +89,6 @@ final class CalculatorService {
             throw CalculatorServiceError.failedToAddMathOperator
         }
 
-        
         operation.append(" \(mathOperator.symbol) ")
     }
     
@@ -137,24 +136,19 @@ final class CalculatorService {
             return (false, "Impossible de diviser par 0")
         }
         
-//        if expressionContainBracket {
-//            guard isBalanced(operation) else {
-//                return (false, "Une des parenthèse n'est pas fermée")
-//            }
-//        }
-        
         operationsToReduce = elements
         print("operationToReduce : \(operationsToReduce!)")
         
         while operationsToReduce.count > 1 {
             print("operationToReduce : \(operationsToReduce!)")
             mergeMinusToNegativeDigit()
+            print("operationToReduce : \(operationsToReduce!)")
             solveMultiplyAndDivideOperations()
             solvePlusAndMinusOperations()
-            
-            operation.append(" = \(operationsToReduce.first!)")
-            print("operation : \(operation)")
         }
+        operation.append(" = \(operationsToReduce.first!)")
+        print("operation : \(operation)")
+        
         return (true, "")
     }
     
@@ -186,12 +180,20 @@ final class CalculatorService {
             } else if let indexOperand = operationsToReduce.firstIndex(of: "/") {
                 
                 let left = Double(operationsToReduce[indexOperand-1])!
+                print("left : \(left)")
                 let right = Double(operationsToReduce[indexOperand+1])!
-                
+                print("right : \(right)")
                 let result = Double(left / right)
+                print("result : \(result)")
                 
                 operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
-                operationsToReduce.removeSubrange(indexOperand-1...indexOperand+1)
+                print("operationToReduce : \(operationsToReduce!)")
+                operationsToReduce.remove(at: indexOperand)
+                print("operationToReduce : \(operationsToReduce!)")
+                operationsToReduce.remove(at: indexOperand)
+                print("operationToReduce : \(operationsToReduce!)")
+                operationsToReduce.remove(at: indexOperand)
+                print("operationToReduce : \(operationsToReduce!)")
             } else {
                 return
             }
@@ -201,19 +203,27 @@ final class CalculatorService {
     private func solvePlusAndMinusOperations() {
         
         if operationsToReduce.count >= 3 {
+            print("operationCount : \(operationsToReduce.count)")
             let left = Double(operationsToReduce[0])!
+            print("left : \(left)")
             let operand = operationsToReduce[1]
+            print("operand : \(operand)")
             let right = Double(operationsToReduce[2])!
+            print("right : \(right)")
             
             let result: Double
             switch operand {
             case "+": result = left + right
+            print("result : \(result)")
             case "-": result = left - right
+            print("result : \(result)")
             default: fatalError("Unknown operator !")
             }
-            
+
             operationsToReduce = Array(operationsToReduce.dropFirst(3))
+            print("oprationToReduce : \(operationsToReduce)")
             operationsToReduce.insert("\(result.clean)", at: 0)
+            print("oprationToReduce : \(operationsToReduce)")
         }
     }
     
@@ -223,9 +233,14 @@ final class CalculatorService {
             if operationsToReduce[minusIndex+1] == "-" {
                 operationsToReduce[minusIndex+1] = "\(operationsToReduce[minusIndex+1])\(operationsToReduce[minusIndex+2])"
                 operationsToReduce.remove(at: minusIndex+2)
-            } else if minusIndex == 0 || operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "*" || operationsToReduce[minusIndex-1] == "/" {
+            } else if minusIndex == 0 {
                 operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
                 operationsToReduce.remove(at: minusIndex+1)
+            } else if operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "*" || operationsToReduce[minusIndex-1] == "/" {
+                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
+                operationsToReduce.remove(at: minusIndex+1)
+            } else {
+                return
             }
         }
     }
@@ -248,9 +263,15 @@ final class CalculatorService {
     }
     
     private var canAddMinusOperator: Bool {
-        !(isLastElementMathOperator && isPreviousLastElementMathOperator)
+        !(isLastElementMathOperator && isPreviousLastElementMathOperator) || !isFirstElementIsMinusOperator
     }
     
+    private var isFirstElementIsMinusOperator: Bool {
+        guard let firstElement = elements.first else {
+            return false
+        }
+        return isSymbolMathOperator(symbol: firstElement)
+    }
     
     private var isLastElementMathOperator: Bool {
         guard let lastElement = elements.last else {
@@ -291,7 +312,7 @@ final class CalculatorService {
 
 extension Double {
     var clean: String {
-        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(format: "%.2f", self)
     }
 
 }
