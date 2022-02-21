@@ -5,7 +5,6 @@
 //  Created by Yann Rouzaud on 10/02/2022.
 //  Copyright © 2022 Vincent Saluzzo. All rights reserved.
 //
-
 import Foundation
 
 protocol CalculatorServiceDelegate: AnyObject {
@@ -14,6 +13,7 @@ protocol CalculatorServiceDelegate: AnyObject {
 
 final class CalculatorService {
     
+    // MARK: - INTERNAL : propeties
     weak var delegate: CalculatorServiceDelegate?
     
     var operation = "" {
@@ -26,51 +26,8 @@ final class CalculatorService {
         return operation.split(separator: " ").map { "\($0)" }
     }
     
-    private var operationsToReduce: [String]!
     
-    // Error check computed variables
-    private var expressionIsCorrect: Bool {
-        !isLastElementMathOperator
-    }
-    
-    private var expressionHaveEnoughElement: Bool {
-        return elements.count >= 3
-    }
-    
-    private var canAddDecimalPoint: Bool {
-        guard !elements.isEmpty else {
-            return true
-        }
-        
-        guard let lastElement = elements.last else {
-            return false
-        }
-        
-        return !lastElement.contains(".")
-        
-        
-        //elements.last != "." && !elements.allSatisfy({ $0.contains(".") }) && !(elements.last?.contains("."))! || elements.isEmpty
-    }
-    
-    private var expressionHaveResult: Bool {
-        return operation.firstIndex(of: "=") != nil
-    }
-    
-    private var conditionForZeroBeforeDecimalPoint: Bool {
-        isLastElementMathOperator || elements.isEmpty
-    }
-    
-    private var expressionIsNotDividedByZero: Bool {
-        return !operation.contains("/ 0")
-    }
-    
-    private var expressionContainsMultiplyOrDivide: Bool {
-        elements.contains { element in
-            isSymbolPriority(symbol: element)
-        }
-        //elements.firstIndex(of: "*") != nil || elements.firstIndex(of: "/") != nil
-    }
-    
+    // MARK: - INTERNAL : methods
     func add(digit: Int) {
         guard !expressionHaveResult else {
             resetOperation()
@@ -99,11 +56,7 @@ final class CalculatorService {
         
         guard !expressionHaveResult else {
             resetOperation()
-            if conditionForZeroBeforeDecimalPoint {
-                operation.append("0.")
-            } else {
-                operation.append(".")
-            }
+            operation.append("0.")
             return
         }
         
@@ -129,7 +82,7 @@ final class CalculatorService {
         }
         
         guard !expressionHaveResult else {
-            return (false, "")
+            return (false, "L'opération est déjà résolue")
         }
         
         guard expressionIsNotDividedByZero else {
@@ -137,133 +90,57 @@ final class CalculatorService {
         }
         
         operationsToReduce = elements
-        print("operationToReduce : \(operationsToReduce!)")
         
         while operationsToReduce.count > 1 {
-            print("operationToReduce : \(operationsToReduce!)")
             mergeMinusToNegativeDigit()
-            print("operationToReduce : \(operationsToReduce!)")
             solveMultiplyAndDivideOperations()
             solvePlusAndMinusOperations()
         }
         operation.append(" = \(operationsToReduce.first!)")
-        print("operation : \(operation)")
-        
         return (true, "")
     }
     
-    private func solveMultiplyAndDivideOperations() {
-        while expressionContainsMultiplyOrDivide {
-            print("expressionContainsMultiplyOrDivide : \(expressionContainsMultiplyOrDivide)")
-            //let indexOperand: Int?
-            
-            if let indexOperand = operationsToReduce.firstIndex(of: "*") {
-                print("indexOperand : \(indexOperand)")
-                
-                let left = Double(operationsToReduce[indexOperand-1])!
-                print("left : \(left)")
-                let right = Double(operationsToReduce[indexOperand+1])!
-                print("right : \(right)")
-                
-                let result = Double(left * right)
-                print("result : \(result)")
-                
-                operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
-                print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand)
-                print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand)
-                print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand)
-                print("operationToReduce : \(operationsToReduce!)")
-                
-            } else if let indexOperand = operationsToReduce.firstIndex(of: "/") {
-                
-                let left = Double(operationsToReduce[indexOperand-1])!
-                print("left : \(left)")
-                let right = Double(operationsToReduce[indexOperand+1])!
-                print("right : \(right)")
-                let result = Double(left / right)
-                print("result : \(result)")
-                
-                operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
-                print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand)
-                print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand)
-                print("operationToReduce : \(operationsToReduce!)")
-                operationsToReduce.remove(at: indexOperand)
-                print("operationToReduce : \(operationsToReduce!)")
-            } else {
-                return
-            }
-        }
+    
+    // MARK: - PRIVATE : properties
+    private var operationsToReduce: [String]!
+    
+    // Error check computed variables
+    private var expressionIsCorrect: Bool {
+        !isLastElementMathOperator
     }
     
-    private func solvePlusAndMinusOperations() {
-        
-        if operationsToReduce.count >= 3 {
-            print("operationCount : \(operationsToReduce.count)")
-            let left = Double(operationsToReduce[0])!
-            print("left : \(left)")
-            let operand = operationsToReduce[1]
-            print("operand : \(operand)")
-            let right = Double(operationsToReduce[2])!
-            print("right : \(right)")
-            
-            let result: Double
-            switch operand {
-            case "+": result = left + right
-            print("result : \(result)")
-            case "-": result = left - right
-            print("result : \(result)")
-            default: fatalError("Unknown operator !")
-            }
-
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            print("oprationToReduce : \(operationsToReduce)")
-            operationsToReduce.insert("\(result.clean)", at: 0)
-            print("oprationToReduce : \(operationsToReduce)")
-        }
+    private var expressionHaveEnoughElement: Bool {
+        return elements.count >= 3
     }
     
-    private func mergeMinusToNegativeDigit() {
-        while let minusIndex = operationsToReduce.firstIndex(of: "-") {
-            
-            if operationsToReduce[minusIndex+1] == "-" {
-                operationsToReduce[minusIndex+1] = "\(operationsToReduce[minusIndex+1])\(operationsToReduce[minusIndex+2])"
-                operationsToReduce.remove(at: minusIndex+2)
-            } else if minusIndex == 0 {
-                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
-                operationsToReduce.remove(at: minusIndex+1)
-            } else if operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "*" || operationsToReduce[minusIndex-1] == "/" {
-                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
-                operationsToReduce.remove(at: minusIndex+1)
-            } else {
-                return
-            }
-        }
-    }
-    
-    private func canAdd(mathOperator: MathOperator) -> Bool {
-
-        guard mathOperator != .minus else {
-            return canAddMinusOperator
+    private var canAddDecimalPoint: Bool {
+        guard !elements.isEmpty else {
+            return true
         }
         
         guard let lastElement = elements.last else {
             return false
         }
         
-        return !MathOperator.allCases.contains { mathOperator in
-            mathOperator.symbol.description == lastElement
-        }
-        
-        // return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/" && elements.first != nil
+        return !lastElement.contains(".")
     }
     
-    private var canAddMinusOperator: Bool {
-        !(isLastElementMathOperator && isPreviousLastElementMathOperator) || !isFirstElementIsMinusOperator
+    private var expressionHaveResult: Bool {
+        return operation.firstIndex(of: "=") != nil
+    }
+    
+    private var conditionForZeroBeforeDecimalPoint: Bool {
+        isLastElementMathOperator || elements.isEmpty
+    }
+    
+    private var expressionIsNotDividedByZero: Bool {
+        return !operation.contains("/ 0")
+    }
+    
+    private var expressionContainsMultiplyOrDivide: Bool {
+        elements.contains { element in
+            isSymbolPriority(symbol: element)
+        }
     }
     
     private var isFirstElementIsMinusOperator: Bool {
@@ -292,6 +169,93 @@ final class CalculatorService {
         
     }
     
+    
+    // MARK: - PRIVATE : methods
+    private func solveMultiplyAndDivideOperations() {
+        while expressionContainsMultiplyOrDivide {
+            if let indexOperand = operationsToReduce.firstIndex(of: "*") {
+
+                let left = Double(operationsToReduce[indexOperand-1])!
+                let right = Double(operationsToReduce[indexOperand+1])!
+                let result = Double(left * right)
+                
+                operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
+                for _ in 1...3 {
+                    operationsToReduce.remove(at: indexOperand)
+                }
+                
+            } else if let indexOperand = operationsToReduce.firstIndex(of: "/") {
+                
+                let left = Double(operationsToReduce[indexOperand-1])!
+                let right = Double(operationsToReduce[indexOperand+1])!
+                let result = Double(left / right)
+                
+                operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
+                for _ in 1...3 {
+                    operationsToReduce.remove(at: indexOperand)
+                }
+            } else {
+                return
+            }
+        }
+    }
+    
+    private func solvePlusAndMinusOperations() {
+        
+        if operationsToReduce.count >= 3 {
+            let left = Double(operationsToReduce[0])!
+            let operand = operationsToReduce[1]
+            let right = Double(operationsToReduce[2])!
+            
+            let result: Double
+            switch operand {
+            case "+": result = left + right
+            case "-": result = left - right
+            default: fatalError("Unknown operator !")
+            }
+            operationsToReduce = Array(operationsToReduce.dropFirst(3))
+            operationsToReduce.insert("\(result.clean)", at: 0)
+        }
+    }
+    
+    private func mergeMinusToNegativeDigit() {
+        while let minusIndex = operationsToReduce.firstIndex(of: "-") {
+            
+            if operationsToReduce[minusIndex+1] == "-" {
+                operationsToReduce[minusIndex+1] = "\(operationsToReduce[minusIndex+1])\(operationsToReduce[minusIndex+2])"
+                operationsToReduce.remove(at: minusIndex+2)
+            } else if minusIndex == 0 || operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "*" || operationsToReduce[minusIndex-1] == "/" {
+                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
+                operationsToReduce.remove(at: minusIndex+1)
+            } else {
+                return
+            }
+        }
+    }
+    
+    private func canAdd(mathOperator: MathOperator) -> Bool {
+
+        guard mathOperator != .minus else {
+            return canAddMinusOperator
+        }
+        
+        guard let lastElement = elements.last else {
+            return false
+        }
+        
+        return !MathOperator.allCases.contains { mathOperator in
+            mathOperator.symbol.description == lastElement
+        }
+        
+        // return elements.last != "+" && elements.last != "-" && elements.last != "*" && elements.last != "/" && elements.first != nil
+    }
+    
+    private var canAddMinusOperator: Bool {
+        !(isLastElementMathOperator && isPreviousLastElementMathOperator)
+    }
+    
+    
+    
     private func isSymbolMathOperator(symbol: String) -> Bool {
         MathOperator.allCases.contains { mathOperator in
             mathOperator.symbol.description == symbol
@@ -310,6 +274,7 @@ final class CalculatorService {
 }
 
 
+// MARK: - EXTENSIONS
 extension Double {
     var clean: String {
         return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(format: "%.2f", self)
