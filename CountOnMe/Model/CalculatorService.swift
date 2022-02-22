@@ -27,6 +27,9 @@ final class CalculatorService {
     }
 
     // MARK: - INTERNAL : methods
+
+    /// This function adds a digit to the operation
+    /// - parameter digit: Int
     func add(digit: Int) {
         guard !expressionHaveResult else {
             resetOperation()
@@ -36,6 +39,9 @@ final class CalculatorService {
         operation.append(digit.description)
     }
 
+    /// This funtion adds an operator to the operation
+    /// - parameter mathOperator: MathOperator
+    /// - throws: Failed to add operator
     func add(mathOperator: MathOperator) throws {
         guard !expressionHaveResult else {
             if mathOperator == .minus {
@@ -52,6 +58,8 @@ final class CalculatorService {
         operation.append(" \(mathOperator.symbol) ")
     }
 
+    /// This function adds a decimal point to the operation
+    /// - throws: Failed to add a decimal point
     func add() throws {
         guard canAddDecimalPoint else {
             throw CalculatorServiceError.failedToAddPoint
@@ -70,10 +78,13 @@ final class CalculatorService {
         }
     }
 
+    /// This function resets the operation
     func resetOperation() {
         operation.removeAll()
     }
 
+    /// This functions solves the operation
+    /// - returns: Bool and String
     func solveOperation() -> (isOperationSolved: Bool, message: String) {
         guard expressionIsCorrect else {
             return (false, "Veuillez entrer une expression correcte.")
@@ -171,8 +182,7 @@ final class CalculatorService {
 
         if elements.count < 2 && isFirstElementIsMinusOperator {
             return false
-        } else if expressionHaveResult
-        {
+        } else if expressionHaveResult {
             return true
         } else {
             return !(isLastElementMathOperator && isPreviousLastElementMathOperator)
@@ -180,6 +190,8 @@ final class CalculatorService {
     }
 
     // MARK: - PRIVATE : methods
+
+    /// This function solves multiplies and divides
     private func solveMultiplyAndDivideOperations() {
         while expressionContainsMultiplyOrDivide {
             if let indexOperand = operationsToReduce.firstIndex(of: "×") {
@@ -192,6 +204,8 @@ final class CalculatorService {
         }
     }
 
+    /// This function is used to multiply
+    /// - parameter indexOperand: Index of the math operator multiply.
     private func multiplyOperation(_ indexOperand: Int) {
         let left = Double(operationsToReduce[indexOperand-1])!
         let right = Double(operationsToReduce[indexOperand+1])!
@@ -203,6 +217,8 @@ final class CalculatorService {
         }
     }
 
+    /// This function is used to divide
+    /// - parameter indexOperand: Index of the math operator divide.
     private func divideOperation(_ indexOperand: Int) {
         let left = Double(operationsToReduce[indexOperand-1])!
         let right = Double(operationsToReduce[indexOperand+1])!
@@ -214,8 +230,8 @@ final class CalculatorService {
         }
     }
 
+    /// This function solves additions and subtractions
     private func solvePlusAndMinusOperations() {
-
         if operationsToReduce.count >= 3 {
             let left = Double(operationsToReduce[0])!
             let operand = operationsToReduce[1]
@@ -232,6 +248,7 @@ final class CalculatorService {
         }
     }
 
+    /// This function merges a minus and a digit to create negative digit
     private func mergeMinusToNegativeDigit() {
         while let minusIndex = operationsToReduce.firstIndex(of: "-") {
 
@@ -247,8 +264,10 @@ final class CalculatorService {
         }
     }
 
+    /// This function checks if a math operator can be added
+    /// - parameter mathOperator: A math operator.
+    /// - returns: Bool
     private func canAdd(mathOperator: MathOperator) -> Bool {
-
         guard mathOperator != .minus else {
             return canAddMinusOperator
         }
@@ -262,12 +281,18 @@ final class CalculatorService {
         }
     }
 
+    /// This function checks if an element is a math operator
+    /// - parameter symbol: String.
+    /// - returns: Bool
     private func isSymbolMathOperator(symbol: String) -> Bool {
         MathOperator.allCases.contains { mathOperator in
             mathOperator.symbol.description == symbol
         }
     }
 
+    /// This function checks if an element is a priority math operator
+    /// - parameter symbol: String.
+    /// - returns: Bool
     private func isSymbolPriority(symbol: String) -> Bool {
         guard
             let symbolAsCharacter = symbol.first,

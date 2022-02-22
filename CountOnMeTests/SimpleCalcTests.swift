@@ -40,6 +40,13 @@ class CalculatorServiceTests: XCTestCase {
         XCTAssertEqual(calculator.operation, "1 + 1 = 2")
     }
 
+    func testGivenExpressionHasResult_WhenAddAMinusMathOperator_ThenExpressionResetAndMinusAdded() throws {
+        calculator.operation = "1 + 1 = 2"
+        try calculator.add(mathOperator: .minus)
+
+        XCTAssertEqual(calculator.operation, " - ")
+    }
+
     func testGivenOperationWithLastElementIsMathOperator_WhenAddOperatorExeptMinus_ThenCannotAddMathOperator() throws {
         calculator.add(digit: 3)
         try calculator.add(mathOperator: .plus)
