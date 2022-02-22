@@ -45,7 +45,7 @@ final class CalculatorViewController: UIViewController {
         guard let mathOperatorButtonTitleCharacter = sender.title(for: .normal)?.first,
               let mathOperator = MathOperator(symbol: mathOperatorButtonTitleCharacter)
         else {
-            presentAlert(message: "Failed to create math operator from button")
+            presentAlert(message: "Impossible d'ajouter un opérateur.")
             return
         }
         
