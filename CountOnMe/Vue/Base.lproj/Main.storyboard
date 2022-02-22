@@ -50,7 +50,7 @@
                                         <rect key="frame" x="150" y="0.0" width="60" height="80"/>
                                         <color key="backgroundColor" systemColor="systemPurpleColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="42"/>
-                                        <state key="normal" title="*">
+                                        <state key="normal" title="×">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
@@ -61,7 +61,7 @@
                                         <rect key="frame" x="225" y="0.0" width="60" height="80"/>
                                         <color key="backgroundColor" systemColor="systemBlueColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="42"/>
-                                        <state key="normal" title="/">
+                                        <state key="normal" title="÷">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>

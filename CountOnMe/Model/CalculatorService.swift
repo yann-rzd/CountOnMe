@@ -131,7 +131,7 @@ final class CalculatorService {
     }
 
     private var expressionIsNotDividedByZero: Bool {
-        return !operation.contains("/ 0")
+        return !operation.contains("÷ 0")
     }
 
     private var expressionContainsMultiplyOrDivide: Bool {
@@ -174,9 +174,9 @@ final class CalculatorService {
     // MARK: - PRIVATE : methods
     private func solveMultiplyAndDivideOperations() {
         while expressionContainsMultiplyOrDivide {
-            if let indexOperand = operationsToReduce.firstIndex(of: "*") {
+            if let indexOperand = operationsToReduce.firstIndex(of: "×") {
                 multiplyOperation(indexOperand)
-            } else if let indexOperand = operationsToReduce.firstIndex(of: "/") {
+            } else if let indexOperand = operationsToReduce.firstIndex(of: "÷") {
                 divideOperation(indexOperand)
             } else {
                 return
@@ -230,7 +230,7 @@ final class CalculatorService {
             if operationsToReduce[minusIndex+1] == "-" {
                 operationsToReduce[minusIndex+1] = "\(operationsToReduce[minusIndex+1])\(operationsToReduce[minusIndex+2])"
                 operationsToReduce.remove(at: minusIndex+2)
-            } else if minusIndex == 0 || operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "*" || operationsToReduce[minusIndex-1] == "/" {
+            } else if minusIndex == 0 || operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "×" || operationsToReduce[minusIndex-1] == "÷" {
                 operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
                 operationsToReduce.remove(at: minusIndex+1)
             } else {

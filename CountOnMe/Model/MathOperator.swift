@@ -21,9 +21,9 @@ enum MathOperator: CaseIterable {
             self = .plus
         case "-":
             self = .minus
-        case "*":
+        case "×":
             self = .multiply
-        case "/":
+        case "÷":
             self = .divide
         default:
             return nil
@@ -37,9 +37,9 @@ enum MathOperator: CaseIterable {
         case .minus:
             return "-"
         case .multiply:
-            return "*"
+            return "×"
         case .divide:
-            return "/"
+            return "÷"
         }
     }
 
