@@ -163,16 +163,16 @@ class CalculatorServiceTests: XCTestCase {
 
     // MARK: - Test solveMultiplyAndDivideOperations() in CalculatorService
     func testGivenOperationconatinsMultipliesAndSum_WhenSolveOperation_ThenMultipliesAreSolvedFirst() {
-        calculator.operation = "1 + 2 * 3 + 4 * 5"
-        let operationResult = "1 + 2 * 3 + 4 * 5 = 27"
+        calculator.operation = "1 + 2 × 3 + 4 × 5"
+        let operationResult = "1 + 2 × 3 + 4 × 5 = 27"
         _ = calculator.solveOperation()
 
         XCTAssertEqual(calculator.operation, operationResult)
     }
 
     func testGivenOperationconatinsDividesAndSum_WhenSolveOperation_ThenDividesAreSolvedFirst() {
-        calculator.operation = "1 + 2 / 3 + 4 / 5"
-        let operationResult = "1 + 2 / 3 + 4 / 5 = 2.47"
+        calculator.operation = "1 + 2 ÷ 3 + 4 ÷ 5"
+        let operationResult = "1 + 2 ÷ 3 + 4 ÷ 5 = 2.47"
         _ = calculator.solveOperation()
 
         XCTAssertEqual(calculator.operation, operationResult)

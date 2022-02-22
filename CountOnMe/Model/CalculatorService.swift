@@ -131,7 +131,7 @@ final class CalculatorService {
     }
 
     private var expressionIsNotDividedByZero: Bool {
-        return !operation.contains("÷ 0")
+        return !operation.contains(" 0")
     }
 
     private var expressionContainsMultiplyOrDivide: Bool {
@@ -164,6 +164,7 @@ final class CalculatorService {
     }
 
     private var canAddMinusOperator: Bool {
+
         if elements.count < 2 && isFirstElementIsMinusOperator {
             return false
         } else {
