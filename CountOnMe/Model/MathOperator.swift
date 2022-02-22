@@ -9,12 +9,12 @@
 import Foundation
 
 enum MathOperator: CaseIterable {
-    
+
     case plus
     case minus
     case multiply
     case divide
-    
+
     init?(symbol: Character) {
         switch symbol {
         case "+":
@@ -29,7 +29,7 @@ enum MathOperator: CaseIterable {
             return nil
         }
     }
-    
+
     var symbol: Character {
         switch self {
         case .plus:
@@ -42,7 +42,7 @@ enum MathOperator: CaseIterable {
             return "/"
         }
     }
-    
+
     var isPriority: Bool {
         switch self {
         case .plus:

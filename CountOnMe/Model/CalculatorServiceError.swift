@@ -15,7 +15,7 @@ enum CalculatorServiceError: Swift.Error {
     case expressionHaveNotEnoughElement
     case expressionHaveResult
     case expressionIsDividedByZero
-    
+
     var errorDescription: String? {
         switch self {
         case .failedToAddMathOperator:

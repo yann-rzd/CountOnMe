@@ -9,10 +9,10 @@
 import Foundation
 
 enum DecimalPointFormat {
-    
+
     case decimalPoint
     case zeroBeforeDeciamlPoint
-    
+
     var format: String? {
         switch self {
         case .decimalPoint:
