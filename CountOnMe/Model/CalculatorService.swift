@@ -38,6 +38,10 @@ final class CalculatorService {
 
     func add(mathOperator: MathOperator) throws {
         guard !expressionHaveResult else {
+            if mathOperator == .minus {
+                resetOperation()
+                operation.append(" \(mathOperator.symbol) ")
+            }
             return
         }
 
@@ -167,6 +171,9 @@ final class CalculatorService {
 
         if elements.count < 2 && isFirstElementIsMinusOperator {
             return false
+        } else if expressionHaveResult
+        {
+            return true
         } else {
             return !(isLastElementMathOperator && isPreviousLastElementMathOperator)
         }
