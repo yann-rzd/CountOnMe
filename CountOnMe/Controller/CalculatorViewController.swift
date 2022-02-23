@@ -30,7 +30,7 @@ final class CalculatorViewController: UIViewController {
 
     @IBAction func didTapPointButton(_ sender: UIButton) {
         do {
-            try calculatorService.add()
+            try calculatorService.addDecimalPoint()
         } catch {
             presentAlert(message: "Un point est déja mis !")
         }

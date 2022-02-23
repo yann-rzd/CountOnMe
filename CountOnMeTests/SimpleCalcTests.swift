@@ -81,14 +81,14 @@ class CalculatorServiceTests: XCTestCase {
     func testGivenOperationLasElementIsDigit_WhenAddDecimalPoint_ThenDecimalPointAdded() throws {
         calculator.add(digit: 3)
 
-        XCTAssertNoThrow(try calculator.add())
+        XCTAssertNoThrow(try calculator.addDecimalPoint())
         XCTAssertEqual(calculator.operation, "3.")
     }
 
     func testGivenOperationIsEmpty_WhenAddDecimalPoint_ThenDecimalPointAddedWithZero() throws {
         calculator.operation = ""
 
-        XCTAssertNoThrow(try calculator.add())
+        XCTAssertNoThrow(try calculator.addDecimalPoint())
         XCTAssertEqual(calculator.operation, "0.")
     }
 
@@ -96,22 +96,22 @@ class CalculatorServiceTests: XCTestCase {
         calculator.add(digit: 3)
         try calculator.add(mathOperator: .plus)
 
-        XCTAssertNoThrow(try calculator.add())
+        XCTAssertNoThrow(try calculator.addDecimalPoint())
         XCTAssertEqual(calculator.operation, "3 + 0.")
     }
 
     func testGivenOperationHasResult_WhenAddDecimalPoint_ThenResetOperationAndDeciMalPointWithZeroAdded() throws {
         calculator.operation = "3 + 3 = 6"
 
-        XCTAssertNoThrow(try calculator.add())
+        XCTAssertNoThrow(try calculator.addDecimalPoint())
         XCTAssertEqual(calculator.operation, "0.")
     }
 
     func testGivenOperationLastElementIsDecimalPoint_WhenAddDecimalPoint_ThenCannotAddDecimalPoint() throws {
         calculator.add(digit: 3)
-        try calculator.add()
+        try calculator.addDecimalPoint()
 
-        XCTAssertThrowsError(try calculator.add())
+        XCTAssertThrowsError(try calculator.addDecimalPoint())
         XCTAssertEqual(calculator.operation, "3.")
     }
 

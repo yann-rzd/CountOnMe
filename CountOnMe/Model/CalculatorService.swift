@@ -60,7 +60,7 @@ final class CalculatorService {
 
     /// This function adds a decimal point to the operation
     /// - throws: Failed to add a decimal point
-    func add() throws {
+    func addDecimalPoint() throws {
         guard canAddDecimalPoint else {
             throw CalculatorServiceError.failedToAddPoint
         }
@@ -125,24 +125,8 @@ final class CalculatorService {
         return elements.count >= 3
     }
 
-    private var canAddDecimalPoint: Bool {
-        guard !elements.isEmpty else {
-            return true
-        }
-
-        guard let lastElement = elements.last else {
-            return false
-        }
-
-        return !lastElement.contains(".")
-    }
-
     private var expressionHaveResult: Bool {
         return operation.firstIndex(of: "=") != nil
-    }
-
-    private var conditionForZeroBeforeDecimalPoint: Bool {
-        isLastElementMathOperator || elements.isEmpty
     }
 
     private var expressionIsNotDividedByZero: Bool {
@@ -153,6 +137,10 @@ final class CalculatorService {
         elements.contains { element in
             isSymbolPriority(symbol: element)
         }
+    }
+
+    private var conditionForZeroBeforeDecimalPoint: Bool {
+        isLastElementMathOperator || elements.isEmpty
     }
 
     private var isFirstElementIsMinusOperator: Bool {
@@ -176,6 +164,18 @@ final class CalculatorService {
         }
         let previousLastElement = elements[elements.count - 2]
         return isSymbolMathOperator(symbol: previousLastElement)
+    }
+
+    private var canAddDecimalPoint: Bool {
+        guard !elements.isEmpty else {
+            return true
+        }
+
+        guard let lastElement = elements.last else {
+            return false
+        }
+
+        return !lastElement.contains(".")
     }
 
     private var canAddMinusOperator: Bool {
