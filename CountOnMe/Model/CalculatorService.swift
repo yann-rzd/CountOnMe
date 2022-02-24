@@ -31,11 +31,15 @@ final class CalculatorService {
     /// This function adds a digit to the operation
     /// - parameter digit: Int
     func add(digit: Int) {
-        guard !expressionHaveResult else {
+        if expressionHaveResult {
             resetOperation()
-            operation.append(digit.description)
-            return
         }
+
+        if let lastElement = elements.last,
+           lastElement == "0" {
+            operation.removeLast()
+        }
+
         operation.append(digit.description)
     }
 
@@ -43,12 +47,8 @@ final class CalculatorService {
     /// - parameter mathOperator: MathOperator
     /// - throws: Failed to add operator
     func add(mathOperator: MathOperator) throws {
-        guard !expressionHaveResult else {
-            if mathOperator == .minus {
-                resetOperation()
-                operation.append(" \(mathOperator.symbol) ")
-            }
-            return
+        if expressionHaveResult {
+            resetOperation()
         }
 
         guard canAdd(mathOperator: mathOperator) else {
@@ -85,21 +85,22 @@ final class CalculatorService {
 
     /// This functions solves the operation
     /// - returns: Bool and String
-    func solveOperation() -> (isOperationSolved: Bool, message: String) {
+    func solveOperation() throws { // -> (isOperationSolved: Bool, message: String) {
         guard expressionIsCorrect else {
-            return (false, "Veuillez entrer une expression correcte.")
+            throw CalculatorServiceError.expressionIsNotCorrect
+           // return (false, "Veuillez entrer une expression correcte.")
         }
 
         guard expressionHaveEnoughElement else {
-            return (false, "Veuillez démarrer un nouveau calcul.")
+            throw CalculatorServiceError.expressionHaveNotEnoughElement
         }
 
         guard !expressionHaveResult else {
-            return (false, "L'opération est déjà résolue")
+            throw CalculatorServiceError.expressionHaveResult
         }
 
         guard expressionIsNotDividedByZero else {
-            return (false, "Impossible de diviser par 0")
+            throw CalculatorServiceError.expressionIsDividedByZero
         }
 
         operationsToReduce = elements
@@ -107,10 +108,10 @@ final class CalculatorService {
         while operationsToReduce.count > 1 {
             mergeMinusToNegativeDigit()
             solveMultiplyAndDivideOperations()
-            solvePlusAndMinusOperations()
+            try solvePlusAndMinusOperations()
         }
-        operation.append(" = \(operationsToReduce.first!)")
-        return (true, "")
+
+        operation.append(" = \(operationsToReduce.first ?? "")")
     }
 
     // MARK: - PRIVATE : properties
@@ -167,26 +168,19 @@ final class CalculatorService {
     }
 
     private var canAddDecimalPoint: Bool {
-        guard !elements.isEmpty else {
-            return true
-        }
 
         guard let lastElement = elements.last else {
-            return false
+            return true
         }
 
         return !lastElement.contains(".")
     }
 
     private var canAddMinusOperator: Bool {
-
-        if elements.count < 2 && isFirstElementIsMinusOperator {
-            return false
-        } else if expressionHaveResult {
-            return true
-        } else {
-            return !(isLastElementMathOperator && isPreviousLastElementMathOperator)
+        guard elements.count < 2 && isFirstElementIsMinusOperator else {
+            return !isPreviousLastElementMathOperator || !isLastElementMathOperator
         }
+        return false
     }
 
     // MARK: - PRIVATE : methods
@@ -207,8 +201,13 @@ final class CalculatorService {
     /// This function is used to multiply
     /// - parameter indexOperand: Index of the math operator multiply.
     private func multiplyOperation(_ indexOperand: Int) {
-        let left = Double(operationsToReduce[indexOperand-1])!
-        let right = Double(operationsToReduce[indexOperand+1])!
+        guard
+            let left = Double(operationsToReduce[indexOperand-1]),
+            let right = Double(operationsToReduce[indexOperand+1])
+        else {
+            return
+        }
+
         let result = Double(left * right)
 
         operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
@@ -220,8 +219,13 @@ final class CalculatorService {
     /// This function is used to divide
     /// - parameter indexOperand: Index of the math operator divide.
     private func divideOperation(_ indexOperand: Int) {
-        let left = Double(operationsToReduce[indexOperand-1])!
-        let right = Double(operationsToReduce[indexOperand+1])!
+        guard
+            let left = Double(operationsToReduce[indexOperand-1]),
+            let right = Double(operationsToReduce[indexOperand+1])
+        else {
+            return
+        }
+
         let result = Double(left / right)
 
         operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
@@ -231,17 +235,22 @@ final class CalculatorService {
     }
 
     /// This function solves additions and subtractions
-    private func solvePlusAndMinusOperations() {
+    private func solvePlusAndMinusOperations() throws {
         if operationsToReduce.count >= 3 {
-            let left = Double(operationsToReduce[0])!
+            guard
+                let left = Double(operationsToReduce[0]),
+                let right = Double(operationsToReduce[2])
+            else {
+                throw CalculatorServiceError.operationUnitIsNotValid
+            }
+
             let operand = operationsToReduce[1]
-            let right = Double(operationsToReduce[2])!
 
             let result: Double
             switch operand {
-            case "+": result = left + right
-            case "-": result = left - right
-            default: fatalError("Unknown operator !")
+            case MathOperator.plus.symbol.description: result = left + right
+            case MathOperator.minus.symbol.description: result = left - right
+            default: throw CalculatorServiceError.operationUnitIsNotValid
             }
             operationsToReduce = Array(operationsToReduce.dropFirst(3))
             operationsToReduce.insert("\(result.clean)", at: 0)

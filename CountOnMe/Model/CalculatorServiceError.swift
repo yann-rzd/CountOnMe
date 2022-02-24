@@ -8,13 +8,14 @@
 
 import Foundation
 
-enum CalculatorServiceError: Swift.Error {
+enum CalculatorServiceError: Error {
     case failedToAddMathOperator
     case failedToAddPoint
     case expressionIsNotCorrect
     case expressionHaveNotEnoughElement
     case expressionHaveResult
     case expressionIsDividedByZero
+    case operationUnitIsNotValid
 
     var errorDescription: String? {
         switch self {
@@ -30,6 +31,8 @@ enum CalculatorServiceError: Swift.Error {
             return "L'opération est déjà résolue"
         case .expressionIsDividedByZero:
             return "Impossible de diviser par 0"
+        case .operationUnitIsNotValid:
+            return "Operation unit is not valid"
         }
     }
 }
