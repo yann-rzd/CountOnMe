@@ -85,7 +85,7 @@ final class CalculatorService {
 
     /// This functions solves the operation
     /// - returns: Bool and String
-    func solveOperation() throws { // -> (isOperationSolved: Bool, message: String) {
+    func solveOperation() throws -> String? {
         guard expressionIsCorrect else {
             throw CalculatorServiceError.expressionIsNotCorrect
            // return (false, "Veuillez entrer une expression correcte.")
@@ -112,6 +112,7 @@ final class CalculatorService {
         }
 
         operation.append(" = \(operationsToReduce.first ?? "")")
+        return operation
     }
 
     // MARK: - PRIVATE : properties
@@ -188,10 +189,23 @@ final class CalculatorService {
     /// This function solves multiplies and divides
     private func solveMultiplyAndDivideOperations() {
         while expressionContainsMultiplyOrDivide {
-            if let indexOperand = operationsToReduce.firstIndex(of: "×") {
-                multiplyOperation(indexOperand)
-            } else if let indexOperand = operationsToReduce.firstIndex(of: "÷") {
-                divideOperation(indexOperand)
+//            if let indexOperand = operationsToReduce.firstIndex(of: "×") {
+//                multiplyOperation(indexOperand)
+//            } else if let indexOperand = operationsToReduce.firstIndex(of: "÷") {
+//                divideOperation(indexOperand)
+//            } else {
+//                return
+//            }
+            if let indexOperand = operationsToReduce.firstIndex(where: { $0 == "×" || $0 == "÷"}) {
+                let operand = operationsToReduce[indexOperand]
+                switch operand {
+                case "×":
+                    multiplyOperation(indexOperand)
+                case "÷":
+                    divideOperation(indexOperand)
+                default:
+                    return
+                }
             } else {
                 return
             }

@@ -180,8 +180,8 @@ class CalculatorServiceTests: XCTestCase {
     // MARK: - mergeMinusToNegativeDigit() in CalculatorService
     func testGivenOperationContainsNegativeDigit_WhenSolveOperation_ThenOperationSolved() throws {
         calculator.operation = "- 4 + - 6 - - 6"
-        let operationResult = "- 4 + - 6 - - 6 = -4"
-        try calculator.solveOperation()
+//        let operationResult = "- 4 + - 6 - - 6 = -4"
+        let operationResult = try calculator.solveOperation()
 
         XCTAssertEqual(calculator.operation, operationResult)
     }
@@ -189,16 +189,16 @@ class CalculatorServiceTests: XCTestCase {
     // MARK: - Test solveMultiplyAndDivideOperations() in CalculatorService
     func testGivenOperationconatinsMultipliesAndSum_WhenSolveOperation_ThenMultipliesAreSolvedFirst() throws {
         calculator.operation = "1 + 2 × 3 + 4 × 5"
-        let operationResult = "1 + 2 × 3 + 4 × 5 = 27"
-        try calculator.solveOperation()
+//        let operationResult = "1 + 2 × 3 + 4 × 5 = 27"
+        let operationResult = try calculator.solveOperation()
 
         XCTAssertEqual(calculator.operation, operationResult)
     }
 
     func testGivenOperationconatinsDividesAndSum_WhenSolveOperation_ThenDividesAreSolvedFirst() throws {
         calculator.operation = "1 + 2 ÷ 3 + 4 ÷ 5"
-        let operationResult = "1 + 2 ÷ 3 + 4 ÷ 5 = 2.47"
-        try calculator.solveOperation()
+//        let operationResult = "1 + 2 ÷ 3 + 4 ÷ 5 = 2.47"
+        let operationResult = try calculator.solveOperation()
 
         XCTAssertEqual(calculator.operation, operationResult)
     }
