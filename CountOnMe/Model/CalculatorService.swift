@@ -13,6 +13,14 @@ protocol CalculatorServiceDelegate: AnyObject {
 
 final class CalculatorService {
 
+    init(
+        numberFormatter: NumberFormatterProtocol = NumberFormatter()
+    ) {
+        self.numberFormatter = numberFormatter
+    }
+
+    private let numberFormatter: NumberFormatterProtocol
+
     // MARK: - INTERNAL : propeties
     weak var delegate: CalculatorServiceDelegate?
 
@@ -72,7 +80,7 @@ final class CalculatorService {
         }
 
         if conditionForZeroBeforeDecimalPoint {
-            operation.append("0.")
+            operation.append(DecimalPointFormat.zeroBeforeDeciamlPoint.format)
         } else {
             operation.append(".")
         }
@@ -85,7 +93,7 @@ final class CalculatorService {
 
     /// This functions solves the operation
     /// - returns: Bool and String
-    func solveOperation() throws -> String? {
+    func solveOperation() throws {
         guard expressionIsCorrect else {
             throw CalculatorServiceError.expressionIsNotCorrect
            // return (false, "Veuillez entrer une expression correcte.")
@@ -104,19 +112,42 @@ final class CalculatorService {
         }
 
         operationsToReduce = elements
+        
+        
+        
 
+        mergeMinusToNegativeDigit()
+        
         while operationsToReduce.count > 1 {
-            mergeMinusToNegativeDigit()
-            solveMultiplyAndDivideOperations()
-            try solvePlusAndMinusOperations()
+            try solveOperationUnits()
+            //try solvePlusAndMinusOperations()
+        }
+        let resultString = operationsToReduce.first ?? ""
+
+        guard let resultNumber = Double(resultString) else {
+            operation.append(" = ")
+            return
         }
 
-        operation.append(" = \(operationsToReduce.first ?? "")")
-        return operation
+        let formattedResult = format(result: resultNumber)
+
+        operation.append(" = \(formattedResult)")
+
+    }
+    
+    private func ensureOperationValidity(operationToReduce: [String]) throws {
+        for (index, element) in operationToReduce.enumerated()  {
+            if !index.isMultiple(of: 2) && MathOperator(symbolString: element) == nil {
+                throw CalculatorServiceError.expressionIsDividedByZero
+            } else if index.isMultiple(of: 2) && Double(element) == nil {
+                throw CalculatorServiceError.expressionIsDividedByZero
+            }
+            
+        }
     }
 
     // MARK: - PRIVATE : properties
-    private var operationsToReduce: [String]!
+    private var operationsToReduce: [String] = []
 
     // Error check computed variables
     private var expressionIsCorrect: Bool {
@@ -132,11 +163,13 @@ final class CalculatorService {
     }
 
     private var expressionIsNotDividedByZero: Bool {
-        return !operation.contains(" 0")
+        return !operation.contains("÷ 0")
     }
+    
+
 
     private var expressionContainsMultiplyOrDivide: Bool {
-        elements.contains { element in
+        operationsToReduce.contains { element in
             isSymbolPriority(symbol: element)
         }
     }
@@ -183,93 +216,50 @@ final class CalculatorService {
         }
         return false
     }
-
+    
     // MARK: - PRIVATE : methods
-
+    
     /// This function solves multiplies and divides
-    private func solveMultiplyAndDivideOperations() {
-        while expressionContainsMultiplyOrDivide {
-//            if let indexOperand = operationsToReduce.firstIndex(of: "×") {
-//                multiplyOperation(indexOperand)
-//            } else if let indexOperand = operationsToReduce.firstIndex(of: "÷") {
-//                divideOperation(indexOperand)
-//            } else {
-//                return
-//            }
-            if let indexOperand = operationsToReduce.firstIndex(where: { $0 == "×" || $0 == "÷"}) {
-                let operand = operationsToReduce[indexOperand]
-                switch operand {
-                case "×":
-                    multiplyOperation(indexOperand)
-                case "÷":
-                    divideOperation(indexOperand)
-                default:
-                    return
-                }
-            } else {
-                return
-            }
-        }
-    }
-
-    /// This function is used to multiply
-    /// - parameter indexOperand: Index of the math operator multiply.
-    private func multiplyOperation(_ indexOperand: Int) {
-        guard
-            let left = Double(operationsToReduce[indexOperand-1]),
-            let right = Double(operationsToReduce[indexOperand+1])
-        else {
-            return
-        }
-
-        let result = Double(left * right)
-
-        operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
-        for _ in 1...3 {
-            operationsToReduce.remove(at: indexOperand)
-        }
-    }
-
-    /// This function is used to divide
-    /// - parameter indexOperand: Index of the math operator divide.
-    private func divideOperation(_ indexOperand: Int) {
-        guard
-            let left = Double(operationsToReduce[indexOperand-1]),
-            let right = Double(operationsToReduce[indexOperand+1])
-        else {
-            return
-        }
-
-        let result = Double(left / right)
-
-        operationsToReduce.insert("\(result.clean)", at: indexOperand-1)
-        for _ in 1...3 {
-            operationsToReduce.remove(at: indexOperand)
-        }
-    }
-
-    /// This function solves additions and subtractions
-    private func solvePlusAndMinusOperations() throws {
-        if operationsToReduce.count >= 3 {
-            guard
-                let left = Double(operationsToReduce[0]),
-                let right = Double(operationsToReduce[2])
+    private func solveOperationUnits() throws {
+        
+        try ensureOperationValidity(operationToReduce: operationsToReduce)
+        
+        for (index, element) in operationsToReduce.enumerated() {
+            
+            print("operationsToReduce : \(operationsToReduce)")
+            
+            print("index : \(index)")
+            print("element: \(element)")
+            
+            guard let mathOperator = MathOperator(symbolString: element),
+                !expressionContainsMultiplyOrDivide || (expressionContainsMultiplyOrDivide && mathOperator.isPriority)
             else {
-                throw CalculatorServiceError.operationUnitIsNotValid
+                continue
             }
+            
+            solveOperationUnit(indexOperand: index, mathOperator: mathOperator)
+            break
+        }
+        
+    }
+    
 
-            let operand = operationsToReduce[1]
+    private func solveOperationUnit(indexOperand: Int, mathOperator: MathOperator) {
+        guard
+            let left = Double(operationsToReduce[indexOperand-1]),
+            let right = Double(operationsToReduce[indexOperand+1])
+        else {
+            return
+        }
 
-            let result: Double
-            switch operand {
-            case MathOperator.plus.symbol.description: result = left + right
-            case MathOperator.minus.symbol.description: result = left - right
-            default: throw CalculatorServiceError.operationUnitIsNotValid
-            }
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert("\(result.clean)", at: 0)
+        let result = mathOperator.operation(left, right)
+
+        operationsToReduce.insert(result.description, at: indexOperand-1)
+        for _ in 1...3 {
+            operationsToReduce.remove(at: indexOperand)
         }
     }
+
 
     /// This function merges a minus and a digit to create negative digit
     private func mergeMinusToNegativeDigit() {
@@ -317,19 +307,22 @@ final class CalculatorService {
     /// - parameter symbol: String.
     /// - returns: Bool
     private func isSymbolPriority(symbol: String) -> Bool {
-        guard
-            let symbolAsCharacter = symbol.first,
-            let mathOperator = MathOperator(symbol: symbolAsCharacter) else {
+        guard let mathOperator = MathOperator(symbolString: symbol) else {
             return false
         }
         return mathOperator.isPriority
     }
-}
 
-// MARK: - EXTENSIONS
-extension Double {
-    var clean: String {
-        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(format: "%.2f", self)
+    private func format(result: Double) -> String {
+
+        numberFormatter.maximumFractionDigits = 6
+        numberFormatter.allowsFloats = true
+
+        guard let formattedDescription = numberFormatter.string(from: result as NSNumber) else {
+            return ""
+        }
+        return formattedDescription
     }
 
 }
+

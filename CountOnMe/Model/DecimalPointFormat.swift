@@ -13,7 +13,7 @@ enum DecimalPointFormat {
     case decimalPoint
     case zeroBeforeDeciamlPoint
 
-    var format: String? {
+    var format: String {
         switch self {
         case .decimalPoint:
             return "."

@@ -14,6 +14,17 @@ enum MathOperator: CaseIterable {
     case minus
     case multiply
     case divide
+    
+    init?(symbolString: String) {
+        guard
+            symbolString.count == 1,
+            let symbol = symbolString.first else {
+            return nil
+        }
+       
+        self.init(symbol: symbol)
+    }
+
 
     init?(symbol: Character) {
         switch symbol {
@@ -53,6 +64,20 @@ enum MathOperator: CaseIterable {
             return true
         case .divide:
             return true
+        }
+    }
+    
+    
+    var operation: (Double, Double) -> Double {
+        switch self {
+        case .plus:
+            return { $0 + $1 }
+        case .minus:
+            return { $0 - $1 }
+        case .multiply:
+            return { $0 * $1 }
+        case .divide:
+            return { $0 / $1 }
         }
     }
 }

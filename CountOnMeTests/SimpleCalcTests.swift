@@ -18,22 +18,22 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     // MARK: - Test func add(digit: Int) in CalculatorService
-    func testGivenExpressionHaveResult_WhenAddADigit_ThenExpressionIsResetAnddDigitAdded() {
-        calculator.operation = "1 + 1 = 2"
-//        calculator.add(digit: 1)
-//        try calculator.add(mathOperator: .plus)
-//        calculator.add(digit: 1)
-//        _ = try calculator.solveOperation()
+    func testGivenExpressionHaveResult_WhenAddADigit_ThenExpressionIsResetAnddDigitAdded() throws {
+//        calculator.operation = "1 + 1 = 2"
+        calculator.add(digit: 1)
+        try calculator.add(mathOperator: .plus)
+        calculator.add(digit: 1)
+        try calculator.solveOperation()
         calculator.add(digit: 1)
 
-        XCTAssertTrue(calculator.operation.contains("1"))
+        XCTAssertEqual(calculator.operation, "1")
     }
 
     func testGivenNoDigitAdded_WhenTapOnOneButton_ThenOneIsAdded() {
         calculator.operation = ""
         calculator.add(digit: 1)
 
-        XCTAssertTrue(calculator.operation.contains("1"))
+        XCTAssertEqual(calculator.operation, "1")
     }
 
     // MARK: - Test func add(mathOperator: MathOperator) in CalculatorService
@@ -42,7 +42,7 @@ class CalculatorServiceTests: XCTestCase {
         calculator.add(digit: 1)
         try calculator.add(mathOperator: .plus)
         calculator.add(digit: 1)
-        _ = try calculator.solveOperation()
+        try calculator.solveOperation()
 
         XCTAssertThrowsError(try calculator.add(mathOperator: .plus))
     }
@@ -158,12 +158,11 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     // MARK: - Test func resetOperation() in CalculatorService
-    func testGivenOperationContainsElements_WhenResetOperation_ThenOperationIsreset() {
-        calculator.operation = "3 + 3 = 6"
-//        calculator.add(digit: 3)
-//        try calculator.add(mathOperator: .plus)
-//        calculator.add(digit: 3)
-//        _ = try calculator.solveOperation()
+    func testGivenOperationContainsElements_WhenResetOperation_ThenOperationIsreset() throws {
+        calculator.add(digit: 3)
+        try calculator.add(mathOperator: .plus)
+        calculator.add(digit: 3)
+        _ = try calculator.solveOperation()
         calculator.resetOperation()
 
         XCTAssertTrue(calculator.operation.isEmpty)
@@ -206,9 +205,9 @@ class CalculatorServiceTests: XCTestCase {
         try calculator.add(mathOperator: .minus)
         try calculator.add(mathOperator: .minus)
         calculator .add(digit: 6)
-        let operationResult = try calculator.solveOperation()
+        try calculator.solveOperation()
 
-        XCTAssertEqual(calculator.operation, operationResult)
+        XCTAssertEqual(calculator.operation, " - 4 +  - 6 -  - 6 = -4")
     }
 
     // MARK: - Test solveMultiplyAndDivideOperations() in CalculatorService
@@ -222,9 +221,9 @@ class CalculatorServiceTests: XCTestCase {
         calculator .add(digit: 4)
         try calculator.add(mathOperator: .multiply)
         calculator .add(digit: 5)
-        let operationResult = try calculator.solveOperation()
+        try calculator.solveOperation()
 
-        XCTAssertEqual(calculator.operation, operationResult)
+        XCTAssertEqual(calculator.operation, "1 + 2 × 3 + 4 × 5 = 27")
     }
 
     func testGivenOperationconatinsDividesAndSum_WhenSolveOperation_ThenDividesAreSolvedFirst() throws {
@@ -237,9 +236,9 @@ class CalculatorServiceTests: XCTestCase {
         calculator .add(digit: 4)
         try calculator.add(mathOperator: .divide)
         calculator .add(digit: 5)
-        let operationResult = try calculator.solveOperation()
+        try calculator.solveOperation()
 
-        XCTAssertEqual(calculator.operation, operationResult)
+        XCTAssertEqual(calculator.operation, "1 + 2 ÷ 3 + 4 ÷ 5 = 2.466667")
     }
 
     func testGivenOperationHasUnknownElement_WhenSolveOperation_ThenThrowsError() throws {
@@ -295,4 +294,19 @@ class CalculatorServiceTests: XCTestCase {
         XCTAssertEqual(calculator.operation, "2")
     }
 
+    func testGivenOperationHasZero_WhenAddTwo_ThenOperationIsTwoOnlyasdadsadsasd() throws {
+        let numberFormatterMock = FailureNumberFormatterMock()
+        let calculatorWithMockFormatter = CalculatorService(numberFormatter: numberFormatterMock)
+        calculatorWithMockFormatter.add(digit: 0)
+        try calculatorWithMockFormatter.add(mathOperator: .plus)
+        calculatorWithMockFormatter.add(digit: 0)
+        try calculatorWithMockFormatter.solveOperation()
+        XCTAssertEqual(calculatorWithMockFormatter.operation, "0 + 0 = ")
+    }
+    
+    
+//    func testTEstTest() throws {
+//        calculator.operation = "0 + a"
+//        XCTAssertThrowsError(try calculator.solveOperation())
+//    }
 }
