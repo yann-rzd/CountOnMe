@@ -52,16 +52,13 @@ final class CalculatorViewController: UIViewController {
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        // let resultStatus = calculatorService.solveOperation()
-        
+
         do {
             try calculatorService.solveOperation()
         } catch {
             guard let error = error as? CalculatorServiceError else { return }
             presentAlert(message: error.errorDescription ?? "")
         }
-
-
     }
 
     @IBAction func didTapResetButton() {

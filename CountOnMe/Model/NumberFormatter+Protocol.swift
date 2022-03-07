@@ -8,10 +8,6 @@
 
 import Foundation
 
-
 extension NumberFormatter: NumberFormatterProtocol {
-    
+
 }
-
-
-

@@ -8,10 +8,9 @@
 
 import Foundation
 
-
 protocol NumberFormatterProtocol: AnyObject {
     var maximumFractionDigits: Int { get set }
     var allowsFloats: Bool { get set }
-    
+
     func string(from number: NSNumber) -> String?
 }

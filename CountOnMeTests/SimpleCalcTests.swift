@@ -303,10 +303,4 @@ class CalculatorServiceTests: XCTestCase {
         try calculatorWithMockFormatter.solveOperation()
         XCTAssertEqual(calculatorWithMockFormatter.operation, "0 + 0 = ")
     }
-    
-    
-//    func testTEstTest() throws {
-//        calculator.operation = "0 + a"
-//        XCTAssertThrowsError(try calculator.solveOperation())
-//    }
 }

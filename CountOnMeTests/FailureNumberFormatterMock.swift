@@ -8,18 +8,14 @@
 
 import Foundation
 
-
 @testable import CountOnMe
-
 
 class FailureNumberFormatterMock: NumberFormatterProtocol {
     var maximumFractionDigits: Int = 6
-    
+
     var allowsFloats: Bool = true
-    
+
     func string(from number: NSNumber) -> String? {
         return nil
     }
-    
-    
 }

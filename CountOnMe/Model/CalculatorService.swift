@@ -112,16 +112,12 @@ final class CalculatorService {
         }
 
         operationsToReduce = elements
-        
-        
-        
-
         mergeMinusToNegativeDigit()
-        
+
         while operationsToReduce.count > 1 {
             try solveOperationUnits()
-            //try solvePlusAndMinusOperations()
         }
+
         let resultString = operationsToReduce.first ?? ""
 
         guard let resultNumber = Double(resultString) else {
@@ -134,15 +130,14 @@ final class CalculatorService {
         operation.append(" = \(formattedResult)")
 
     }
-    
+
     private func ensureOperationValidity(operationToReduce: [String]) throws {
-        for (index, element) in operationToReduce.enumerated()  {
+        for (index, element) in operationToReduce.enumerated() {
             if !index.isMultiple(of: 2) && MathOperator(symbolString: element) == nil {
                 throw CalculatorServiceError.expressionIsDividedByZero
             } else if index.isMultiple(of: 2) && Double(element) == nil {
                 throw CalculatorServiceError.expressionIsDividedByZero
             }
-            
         }
     }
 
@@ -165,8 +160,6 @@ final class CalculatorService {
     private var expressionIsNotDividedByZero: Bool {
         return !operation.contains("÷ 0")
     }
-    
-
 
     private var expressionContainsMultiplyOrDivide: Bool {
         operationsToReduce.contains { element in
@@ -216,33 +209,31 @@ final class CalculatorService {
         }
         return false
     }
-    
+
     // MARK: - PRIVATE : methods
-    
+
     /// This function solves multiplies and divides
     private func solveOperationUnits() throws {
-        
+
         try ensureOperationValidity(operationToReduce: operationsToReduce)
-        
+
         for (index, element) in operationsToReduce.enumerated() {
-            
+
             print("operationsToReduce : \(operationsToReduce)")
-            
+
             print("index : \(index)")
             print("element: \(element)")
-            
+
             guard let mathOperator = MathOperator(symbolString: element),
                 !expressionContainsMultiplyOrDivide || (expressionContainsMultiplyOrDivide && mathOperator.isPriority)
             else {
                 continue
             }
-            
+
             solveOperationUnit(indexOperand: index, mathOperator: mathOperator)
             break
         }
-        
     }
-    
 
     private func solveOperationUnit(indexOperand: Int, mathOperator: MathOperator) {
         guard
@@ -259,7 +250,6 @@ final class CalculatorService {
             operationsToReduce.remove(at: indexOperand)
         }
     }
-
 
     /// This function merges a minus and a digit to create negative digit
     private func mergeMinusToNegativeDigit() {
@@ -325,4 +315,3 @@ final class CalculatorService {
     }
 
 }
-
