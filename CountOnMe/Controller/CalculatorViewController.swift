@@ -20,10 +20,8 @@ final class CalculatorViewController: UIViewController {
         super.viewDidLoad()
         calculatorService.delegate = self
         calculatorService.resetOperation()
-        // Do any additional setup after loading the view.
     }
 
-    // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         calculatorService.add(digit: sender.tag)
     }
@@ -52,7 +50,6 @@ final class CalculatorViewController: UIViewController {
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-
         do {
             try calculatorService.solveOperation()
         } catch {

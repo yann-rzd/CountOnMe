@@ -19,7 +19,6 @@ class CalculatorServiceTests: XCTestCase {
 
     // MARK: - Test func add(digit: Int) in CalculatorService
     func testGivenExpressionHaveResult_WhenAddADigit_ThenExpressionIsResetAnddDigitAdded() throws {
-//        calculator.operation = "1 + 1 = 2"
         calculator.add(digit: 1)
         try calculator.add(mathOperator: .plus)
         calculator.add(digit: 1)
@@ -38,7 +37,6 @@ class CalculatorServiceTests: XCTestCase {
 
     // MARK: - Test func add(mathOperator: MathOperator) in CalculatorService
     func testGivenExpressionHasResult_WhenAddAMathOperator_ThenError() throws {
-//        calculator.operation = "1 + 1 = 2"
         calculator.add(digit: 1)
         try calculator.add(mathOperator: .plus)
         calculator.add(digit: 1)
@@ -48,7 +46,6 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testGivenExpressionHasResult_WhenAddAMinusMathOperator_ThenExpressionResetAndMinusAdded() throws {
-//        calculator.operation = "1 + 1 = 2"
         calculator.add(digit: 1)
         try calculator.add(mathOperator: .plus)
         calculator.add(digit: 1)
@@ -143,7 +140,7 @@ class CalculatorServiceTests: XCTestCase {
         calculator.add(digit: 3)
         try calculator.add(mathOperator: .plus)
         calculator.add(digit: 3)
-        _ = try calculator.solveOperation()
+        try calculator.solveOperation()
 
         XCTAssertNoThrow(try calculator.addDecimalPoint())
         XCTAssertEqual(calculator.operation, "0.")

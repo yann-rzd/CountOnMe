@@ -19,8 +19,6 @@ final class CalculatorService {
         self.numberFormatter = numberFormatter
     }
 
-    private let numberFormatter: NumberFormatterProtocol
-
     // MARK: - INTERNAL : propeties
     weak var delegate: CalculatorServiceDelegate?
 
@@ -96,7 +94,6 @@ final class CalculatorService {
     func solveOperation() throws {
         guard expressionIsCorrect else {
             throw CalculatorServiceError.expressionIsNotCorrect
-           // return (false, "Veuillez entrer une expression correcte.")
         }
 
         guard expressionHaveEnoughElement else {
@@ -119,29 +116,19 @@ final class CalculatorService {
         }
 
         let resultString = operationsToReduce.first ?? ""
-
         guard let resultNumber = Double(resultString) else {
             operation.append(" = ")
             return
         }
 
         let formattedResult = format(result: resultNumber)
-
         operation.append(" = \(formattedResult)")
-
-    }
-
-    private func ensureOperationValidity(operationToReduce: [String]) throws {
-        for (index, element) in operationToReduce.enumerated() {
-            if !index.isMultiple(of: 2) && MathOperator(symbolString: element) == nil {
-                throw CalculatorServiceError.expressionIsDividedByZero
-            } else if index.isMultiple(of: 2) && Double(element) == nil {
-                throw CalculatorServiceError.expressionIsDividedByZero
-            }
-        }
     }
 
     // MARK: - PRIVATE : properties
+
+    private let numberFormatter: NumberFormatterProtocol
+
     private var operationsToReduce: [String] = []
 
     // Error check computed variables
@@ -214,16 +201,9 @@ final class CalculatorService {
 
     /// This function solves multiplies and divides
     private func solveOperationUnits() throws {
-
         try ensureOperationValidity(operationToReduce: operationsToReduce)
 
         for (index, element) in operationsToReduce.enumerated() {
-
-            print("operationsToReduce : \(operationsToReduce)")
-
-            print("index : \(index)")
-            print("element: \(element)")
-
             guard let mathOperator = MathOperator(symbolString: element),
                 !expressionContainsMultiplyOrDivide || (expressionContainsMultiplyOrDivide && mathOperator.isPriority)
             else {
@@ -248,6 +228,16 @@ final class CalculatorService {
         operationsToReduce.insert(result.description, at: indexOperand-1)
         for _ in 1...3 {
             operationsToReduce.remove(at: indexOperand)
+        }
+    }
+
+    private func ensureOperationValidity(operationToReduce: [String]) throws {
+        for (index, element) in operationToReduce.enumerated() {
+            if !index.isMultiple(of: 2) && MathOperator(symbolString: element) == nil {
+                throw CalculatorServiceError.expressionIsDividedByZero
+            } else if index.isMultiple(of: 2) && Double(element) == nil {
+                throw CalculatorServiceError.expressionIsDividedByZero
+            }
         }
     }
 
@@ -313,5 +303,4 @@ final class CalculatorService {
         }
         return formattedDescription
     }
-
 }
