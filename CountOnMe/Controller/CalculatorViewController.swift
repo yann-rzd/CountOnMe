@@ -30,7 +30,8 @@ final class CalculatorViewController: UIViewController {
         do {
             try calculatorService.addDecimalPoint()
         } catch {
-            presentAlert(message: "Un point est déja mis !")
+            guard let error = error as? CalculatorServiceError else { return }
+            presentAlert(message: error.errorDescription ?? "")
         }
     }
 
@@ -45,7 +46,8 @@ final class CalculatorViewController: UIViewController {
         do {
             try calculatorService.add(mathOperator: mathOperator)
         } catch {
-            presentAlert(message: "Impossible d'ajouter un opérateur.")
+            guard let error = error as? CalculatorServiceError else { return }
+            presentAlert(message: error.errorDescription ?? "")
         }
     }
 

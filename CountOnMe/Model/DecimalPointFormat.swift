@@ -11,13 +11,13 @@ import Foundation
 enum DecimalPointFormat {
 
     case decimalPoint
-    case zeroBeforeDeciamlPoint
+    case zeroBeforeDecimalPoint
 
     var format: String {
         switch self {
         case .decimalPoint:
             return "."
-        case .zeroBeforeDeciamlPoint:
+        case .zeroBeforeDecimalPoint:
             return "0."
         }
     }

@@ -73,14 +73,14 @@ final class CalculatorService {
 
         guard !expressionHaveResult else {
             resetOperation()
-            operation.append("0.")
+            operation.append(DecimalPointFormat.zeroBeforeDecimalPoint.format)
             return
         }
 
         if conditionForZeroBeforeDecimalPoint {
-            operation.append(DecimalPointFormat.zeroBeforeDeciamlPoint.format)
+            operation.append(DecimalPointFormat.zeroBeforeDecimalPoint.format)
         } else {
-            operation.append(".")
+            operation.append(DecimalPointFormat.decimalPoint.format)
         }
     }
 
@@ -112,7 +112,7 @@ final class CalculatorService {
         mergeMinusToNegativeDigit()
 
         while operationsToReduce.count > 1 {
-            try solveOperationUnits()
+            try searchAndSolveOperationUnit()
         }
 
         let resultString = operationsToReduce.first ?? ""
@@ -200,12 +200,12 @@ final class CalculatorService {
     // MARK: - PRIVATE : methods
 
     /// This function solves multiplies and divides
-    private func solveOperationUnits() throws {
+    private func searchAndSolveOperationUnit() throws {
         try ensureOperationValidity(operationToReduce: operationsToReduce)
 
         for (index, element) in operationsToReduce.enumerated() {
             guard let mathOperator = MathOperator(symbolString: element),
-                !expressionContainsMultiplyOrDivide || (expressionContainsMultiplyOrDivide && mathOperator.isPriority)
+                !expressionContainsMultiplyOrDivide || mathOperator.isPriority
             else {
                 continue
             }
@@ -233,24 +233,36 @@ final class CalculatorService {
 
     private func ensureOperationValidity(operationToReduce: [String]) throws {
         for (index, element) in operationToReduce.enumerated() {
-            if !index.isMultiple(of: 2) && MathOperator(symbolString: element) == nil {
-                throw CalculatorServiceError.expressionIsDividedByZero
-            } else if index.isMultiple(of: 2) && Double(element) == nil {
-                throw CalculatorServiceError.expressionIsDividedByZero
+            let isIndexEven = index.isMultiple(of: 2)
+
+            let isElementMathOperator = MathOperator(symbolString: element) != nil
+            let isElementNumber = Double(element) != nil
+
+            switch (isIndexEven, isElementMathOperator, isElementNumber) {
+            case (false, false, _):
+                throw CalculatorServiceError.operationUnitIsNotValid
+            case (true, _, false):
+                throw CalculatorServiceError.operationUnitIsNotValid
+            default:
+                break
             }
         }
     }
 
     /// This function merges a minus and a digit to create negative digit
     private func mergeMinusToNegativeDigit() {
-        while let minusIndex = operationsToReduce.firstIndex(of: "-") {
+        while let minusIndex = operationsToReduce.firstIndex(of: MathOperator.minus.symbol.description) {
 
-            if operationsToReduce[minusIndex+1] == "-" {
-                operationsToReduce[minusIndex+1] = "\(operationsToReduce[minusIndex+1])\(operationsToReduce[minusIndex+2])"
+            let nextElementIndex = minusIndex + 1
+            let nextElement = operationsToReduce[nextElementIndex]
+            
+
+            if MathOperator(symbolString: nextElement) == .minus {
+                operationsToReduce[nextElementIndex] = "\(nextElement)\(operationsToReduce[minusIndex+2])"
                 operationsToReduce.remove(at: minusIndex+2)
-            } else if minusIndex == 0 || operationsToReduce[minusIndex-1] == "+" || operationsToReduce[minusIndex-1] == "×" || operationsToReduce[minusIndex-1] == "÷" {
-                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(operationsToReduce[minusIndex+1])"
-                operationsToReduce.remove(at: minusIndex+1)
+            } else if minusIndex == 0 || MathOperator(symbolString: operationsToReduce[minusIndex-1]) != nil {
+                operationsToReduce[minusIndex] = "\(operationsToReduce[minusIndex])\(nextElement)"
+                operationsToReduce.remove(at: nextElementIndex)
             } else {
                 return
             }
