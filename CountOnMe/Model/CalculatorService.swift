@@ -255,7 +255,6 @@ final class CalculatorService {
 
             let nextElementIndex = minusIndex + 1
             let nextElement = operationsToReduce[nextElementIndex]
-            
 
             if MathOperator(symbolString: nextElement) == .minus {
                 operationsToReduce[nextElementIndex] = "\(nextElement)\(operationsToReduce[minusIndex+2])"

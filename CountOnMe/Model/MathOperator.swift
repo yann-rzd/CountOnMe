@@ -21,7 +21,6 @@ enum MathOperator: CaseIterable {
             let symbol = symbolString.first else {
             return nil
         }
-        
         self.init(symbol: symbol)
     }
 
