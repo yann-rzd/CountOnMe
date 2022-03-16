@@ -145,7 +145,20 @@ final class CalculatorService {
     }
 
     private var expressionIsNotDividedByZero: Bool {
-        return !operation.contains("÷ 0")
+        guard let indexForZero = elements.firstIndex(of: "0") else {
+            return true
+        }
+
+        guard indexForZero > 1 else {
+            return true
+        }
+
+        let previousIndexOfZero = indexForZero - 1
+        if elements[previousIndexOfZero] == "÷" {
+            return false
+        } else {
+            return true
+        }
     }
 
     private var expressionContainsMultiplyOrDivide: Bool {

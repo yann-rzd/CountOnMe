@@ -192,6 +192,15 @@ class CalculatorServiceTests: XCTestCase {
         XCTAssertThrowsError(try calculator.solveOperation())
     }
 
+    func testGivenOperationIsDividedByZeroThenDecimalPoint_WhenSolveOperation_ThenCanSolveOperation() throws {
+        calculator.add(digit: 3)
+        try calculator.add(mathOperator: .divide)
+        calculator.add(digit: 0)
+        try calculator.addDecimalPoint()
+        calculator.add(digit: 1)
+        XCTAssertNoThrow(try calculator.solveOperation())
+    }
+
     // MARK: - mergeMinusToNegativeDigit() in CalculatorService
     func testGivenOperationContainsNegativeDigit_WhenSolveOperation_ThenOperationSolved() throws {
         try calculator.add(mathOperator: .minus)
@@ -291,7 +300,7 @@ class CalculatorServiceTests: XCTestCase {
         XCTAssertEqual(calculator.operation, "2")
     }
 
-    func testGivenOperationHasZero_WhenAddTwo_ThenOperationIsTwoOnlyasdadsadsasd() throws {
+    func testGivenOperationHasZero_WhenAddZero_ThenNothing() throws {
         let numberFormatterMock = FailureNumberFormatterMock()
         let calculatorWithMockFormatter = CalculatorService(numberFormatter: numberFormatterMock)
         calculatorWithMockFormatter.add(digit: 0)
