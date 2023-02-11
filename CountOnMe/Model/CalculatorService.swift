@@ -9,6 +9,7 @@ import Foundation
 
 protocol CalculatorServiceDelegate: AnyObject {
     func didUpdateOperation(operation: String)
+    func didProduceError(error: CalculatorServiceError)
 }
 
 final class CalculatorService {
@@ -52,13 +53,14 @@ final class CalculatorService {
     /// This funtion adds an operator to the operation
     /// - parameter mathOperator: MathOperator
     /// - throws: Failed to add operator
-    func add(mathOperator: MathOperator) throws {
+    func add(mathOperator: MathOperator) {
         if expressionHaveResult {
             resetOperation()
         }
 
         guard canAdd(mathOperator: mathOperator) else {
-            throw CalculatorServiceError.failedToAddMathOperator
+            delegate?.didProduceError(error: .failedToAddMathOperator)
+            return
         }
 
         operation.append(" \(mathOperator.symbol) ")
@@ -66,9 +68,10 @@ final class CalculatorService {
 
     /// This function adds a decimal point to the operation
     /// - throws: Failed to add a decimal point
-    func addDecimalPoint() throws {
+    func addDecimalPoint() {
         guard canAddDecimalPoint else {
-            throw CalculatorServiceError.failedToAddPoint
+            delegate?.didProduceError(error: .failedToAddPoint)
+            return
         }
 
         guard !expressionHaveResult else {
@@ -91,28 +94,40 @@ final class CalculatorService {
 
     /// This functions solves the operation
     /// - returns: Bool and String
-    func solveOperation() throws {
+    func solveOperation() {
         guard expressionIsCorrect else {
-            throw CalculatorServiceError.expressionIsNotCorrect
+            delegate?.didProduceError(error: .expressionIsNotCorrect)
+            return
         }
 
         guard expressionHaveEnoughElement else {
-            throw CalculatorServiceError.expressionHaveNotEnoughElement
+            delegate?.didProduceError(error: .expressionHaveNotEnoughElement)
+            return
         }
 
         guard !expressionHaveResult else {
-            throw CalculatorServiceError.expressionHaveResult
+            delegate?.didProduceError(error: .expressionHaveResult)
+            return
         }
 
         guard expressionIsNotDividedByZero else {
-            throw CalculatorServiceError.expressionIsDividedByZero
+            delegate?.didProduceError(error: .expressionIsDividedByZero)
+            return
         }
 
         operationsToReduce = elements
         mergeMinusToNegativeDigit()
 
         while operationsToReduce.count > 1 {
-            try searchAndSolveOperationUnit()
+            do {
+                try searchAndSolveOperationUnit()
+            } catch {
+                guard let error = error as? CalculatorServiceError else {
+                    return
+                }
+                delegate?.didProduceError(error: error)
+                return
+            }
         }
 
         let resultString = operationsToReduce.first ?? ""

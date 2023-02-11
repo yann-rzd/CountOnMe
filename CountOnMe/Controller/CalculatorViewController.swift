@@ -27,12 +27,7 @@ final class CalculatorViewController: UIViewController {
     }
 
     @IBAction func didTapPointButton(_ sender: UIButton) {
-        do {
-            try calculatorService.addDecimalPoint()
-        } catch {
-            guard let error = error as? CalculatorServiceError else { return }
-            presentAlert(message: error.errorDescription ?? "")
-        }
+        calculatorService.addDecimalPoint()
     }
 
     @IBAction func didTapMathOperatorButton(_ sender: UIButton) {
@@ -43,21 +38,11 @@ final class CalculatorViewController: UIViewController {
             return
         }
 
-        do {
-            try calculatorService.add(mathOperator: mathOperator)
-        } catch {
-            guard let error = error as? CalculatorServiceError else { return }
-            presentAlert(message: error.errorDescription ?? "")
-        }
+        calculatorService.add(mathOperator: mathOperator)
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        do {
-            try calculatorService.solveOperation()
-        } catch {
-            guard let error = error as? CalculatorServiceError else { return }
-            presentAlert(message: error.errorDescription ?? "")
-        }
+        calculatorService.solveOperation()
     }
 
     @IBAction func didTapResetButton() {
@@ -73,6 +58,10 @@ final class CalculatorViewController: UIViewController {
 }
 
 extension CalculatorViewController: CalculatorServiceDelegate {
+    func didProduceError(error: CalculatorServiceError) {
+        presentAlert(message: error.errorDescription ?? "")
+    }
+
     func didUpdateOperation(operation: String) {
         operationTextView.text = operation
     }
